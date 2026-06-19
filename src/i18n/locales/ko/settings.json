@@ -498,7 +498,7 @@
     "title": "WSL UI",
     "description": "WSL 배포판을 관리하기 위한 경량 데스크톱 애플리케이션.",
     "builtWith": "Tauri, React, Rust로 제작.",
-    "website": "웹사이트",
+    "website": "Maintainer",
     "github": "GitHub",
     "developedBy": "개발자",
     "license": {

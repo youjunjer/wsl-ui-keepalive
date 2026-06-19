@@ -71,6 +71,11 @@ const ICON_MAP: Record<SettingsIconName, React.FC<{ size?: "sm" | "md" | "lg"; c
 };
 
 const SETTINGS_TAB_STORAGE_KEY = "wslui-settings-active-tab";
+const PROJECT_WEBSITE_URL = "https://github.com/youjunjer";
+const PROJECT_REPOSITORY_URL = "https://github.com/youjunjer/wsl-ui-keepalive";
+const PROJECT_TROUBLESHOOTING_URL = "https://github.com/youjunjer/wsl-ui-keepalive/blob/main/docs/TROUBLESHOOTING.md";
+const PROJECT_LICENSE_URL = "https://github.com/youjunjer/wsl-ui-keepalive/blob/main/LICENSE";
+const PROJECT_MAINTAINER = "尤濬哲 / youjunjer";
 
 /** Map tab IDs with hyphens to camelCase translation keys */
 function tabTranslationKey(tabId: string): string {
@@ -401,7 +406,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                           <span>{t('troubleshooting.openLogFolder')}</span>
                         </button>
                         <a
-                          href="https://wsl-ui.octasoft.co.uk/docs/troubleshooting"
+                          href={PROJECT_TROUBLESHOOTING_URL}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-300 bg-stone-800/50 hover:bg-stone-700/50 border border-stone-700 rounded-lg transition-colors"
@@ -462,7 +467,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
                         <h2 className="text-2xl font-semibold text-stone-100">
-                          WSL<span className="font-bold text-amber-500">UI</span>
+                          WSL<span className="font-bold text-amber-500">UI</span> Keepalive
                         </h2>
                         {appVersion && (
                           <span className="px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30">
@@ -477,7 +482,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                   <div className="relative mt-6 pt-4 border-t border-stone-700/50 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <a
-                        href="https://wsl-ui.octasoft.co.uk"
+                        href={PROJECT_WEBSITE_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone-300 bg-stone-800/50 hover:bg-stone-700/50 border border-stone-700 rounded-lg transition-colors"
@@ -486,7 +491,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                         <span>{t('about.website')}</span>
                       </a>
                       <a
-                        href="https://github.com/octasoft-ltd/wsl-ui"
+                        href={PROJECT_REPOSITORY_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone-300 bg-stone-800/50 hover:bg-stone-700/50 border border-stone-700 rounded-lg transition-colors"
@@ -496,18 +501,16 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                       </a>
                     </div>
                     <a
-                      href="http://www.octasoft.co.uk"
+                      href={PROJECT_WEBSITE_URL}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-stone-400 hover:text-stone-200 transition-colors"
                     >
                       <span className="text-stone-500 text-sm">{t('about.developedBy')}</span>
-                      <img
-                        src="/octasoft-logo.png"
-                        alt="Octasoft Ltd"
-                        className="h-6 w-6 rounded"
-                      />
-                      <span className="font-medium text-sm">Octasoft Ltd</span>
+                      <span className="h-6 w-6 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-center">
+                        Y
+                      </span>
+                      <span className="font-medium text-sm">{PROJECT_MAINTAINER}</span>
                     </a>
                   </div>
                 </section>
@@ -536,7 +539,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                       </div>
                       <div className="flex items-center gap-3">
                         <a
-                          href="https://github.com/octasoft-ltd/wsl-ui/blob/main/LICENSE"
+                          href={PROJECT_LICENSE_URL}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-emerald-400 hover:text-emerald-300 bg-emerald-900/20 hover:bg-emerald-900/30 border border-emerald-800/50 rounded-lg transition-colors"

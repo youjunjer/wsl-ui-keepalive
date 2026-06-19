@@ -498,7 +498,7 @@
     "title": "WSL UI",
     "description": "Una aplicación de escritorio ligera para administrar distribuciones WSL.",
     "builtWith": "Construido con Tauri, React y Rust.",
-    "website": "Sitio web",
+    "website": "Maintainer",
     "github": "GitHub",
     "developedBy": "Desarrollado por",
     "license": {

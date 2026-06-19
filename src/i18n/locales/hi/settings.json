@@ -498,7 +498,7 @@
     "title": "WSL UI",
     "description": "WSL डिस्ट्रिब्यूशन प्रबंधित करने के लिए एक हल्का डेस्कटॉप एप्लिकेशन।",
     "builtWith": "Tauri, React और Rust के साथ निर्मित।",
-    "website": "वेबसाइट",
+    "website": "Maintainer",
     "github": "GitHub",
     "developedBy": "द्वारा विकसित",
     "license": {

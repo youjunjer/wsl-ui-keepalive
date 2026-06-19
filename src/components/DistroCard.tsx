@@ -10,7 +10,7 @@ import { DistroInfoDialog } from "./DistroInfoDialog";
 import { NoRdpDetectedDialog } from "./NoRdpDetectedDialog";
 import { QuickActionsMenu } from "./QuickActionsMenu";
 import { IconButton } from "./ui/Button";
-import { PlayIcon, StopIcon, TrashIcon, SourceIcon, TerminalWindowIcon, MonitorIcon, ClockIcon } from "./icons";
+import { PlayIcon, StopIcon, TrashIcon, SourceIcon, TerminalWindowIcon, MonitorIcon, RunningPersonIcon } from "./icons";
 
 interface DistroCardProps {
   distro: Distribution;
@@ -219,7 +219,7 @@ function DistroCardComponent({ distro, index = 0 }: DistroCardProps) {
                 : "bg-theme-bg-tertiary hover:bg-theme-bg-hover text-theme-text-secondary hover:text-theme-text-primary border-theme-border-secondary"
             }`}
           >
-            <ClockIcon size="sm" className={keepAliveEnabled ? "text-theme-accent-primary" : ""} />
+            <RunningPersonIcon size="sm" className={keepAliveEnabled ? "text-theme-accent-primary" : ""} />
           </button>
 
           <IconButton

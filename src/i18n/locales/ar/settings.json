@@ -498,7 +498,7 @@
     "title": "WSL UI",
     "description": "تطبيق سطح مكتب خفيف لإدارة توزيعات WSL.",
     "builtWith": "مبني بـ Tauri و React و Rust.",
-    "website": "الموقع",
+    "website": "Maintainer",
     "github": "GitHub",
     "developedBy": "تم التطوير بواسطة",
     "license": {

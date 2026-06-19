@@ -498,7 +498,7 @@
     "title": "WSL UI",
     "description": "一款用於管理 WSL 發行版的輕量級桌面應用程式。",
     "builtWith": "使用 Tauri、React 和 Rust 建置。",
-    "website": "網站",
+    "website": "維護者",
     "github": "GitHub",
     "developedBy": "開發者",
     "license": {

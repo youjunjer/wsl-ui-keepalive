@@ -125,10 +125,10 @@
   },
   "resources": {
     "title": "资源与支持",
-    "wslUiWebsite": "WSL UI 网站",
+    "wslUiWebsite": "维护者",
     "githubRepo": "GitHub 仓库",
     "reportIssue": "报告问题",
-    "octasoftWebsite": "Octasoft Ltd 网站",
+    "githubProfile": "GitHub 个人页面",
     "microsoftDocs": "Microsoft WSL 文档"
   }
 }

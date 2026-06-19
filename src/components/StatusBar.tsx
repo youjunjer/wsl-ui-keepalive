@@ -204,7 +204,7 @@ export function StatusBar() {
 
       <div className="flex items-center justify-between gap-3">
         {/* Left: System telemetry */}
-        <div className="flex items-center gap-4 min-w-0 flex-1">
+        <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
           {/* Status indicator - single light for health/connection status */}
           {/* Priority: backoff > preflight failure > health status */}
           <div
@@ -295,7 +295,7 @@ export function StatusBar() {
           <div className="w-px h-4 bg-theme-border-secondary shrink-0" />
 
           {/* Distribution stats */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-3 min-w-0 overflow-hidden">
             {mockMode && (
               <span className="px-2 py-0.5 bg-[rgba(var(--status-warning-rgb),0.1)] text-theme-status-warning rounded text-[10px] font-mono font-semibold border border-[rgba(var(--status-warning-rgb),0.3)] uppercase tracking-wider shrink-0">
                 {t('dev')}
@@ -363,7 +363,7 @@ export function StatusBar() {
           role="status"
           aria-live="polite"
           aria-atomic="true"
-          className="relative z-10 flex items-center gap-3 shrink-0 justify-end bg-theme-bg-primary pl-3 w-28"
+          className="relative z-10 flex items-center gap-3 shrink-0 justify-end min-w-4 xl:min-w-28"
         >
           {displayedStatus ? (
             <div className="flex items-center gap-2 min-w-0">

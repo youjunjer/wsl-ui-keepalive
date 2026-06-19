@@ -125,10 +125,10 @@
   },
   "resources": {
     "title": "リソースとサポート",
-    "wslUiWebsite": "WSL UI ウェブサイト",
+    "wslUiWebsite": "Maintainer",
     "githubRepo": "GitHub リポジトリ",
     "reportIssue": "問題を報告",
-    "octasoftWebsite": "Octasoft Ltd ウェブサイト",
+    "githubProfile": "GitHub Profile",
     "microsoftDocs": "Microsoft WSL ドキュメント"
   }
 }

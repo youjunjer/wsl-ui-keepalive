@@ -125,10 +125,10 @@
   },
   "resources": {
     "title": "संसाधन और समर्थन",
-    "wslUiWebsite": "WSL UI वेबसाइट",
+    "wslUiWebsite": "Maintainer",
     "githubRepo": "GitHub रिपॉज़िटरी",
     "reportIssue": "समस्या रिपोर्ट करें",
-    "octasoftWebsite": "Octasoft Ltd वेबसाइट",
+    "githubProfile": "GitHub Profile",
     "microsoftDocs": "Microsoft WSL दस्तावेज़ीकरण"
   }
 }

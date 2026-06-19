@@ -615,6 +615,20 @@ export function ClockIcon(props: IconProps) {
   );
 }
 
+export function RunningPersonIcon(props: IconProps) {
+  return (
+    <svg {...getSvgProps(props)}>
+      <circle cx="13.5" cy="4.5" r="2" strokeWidth={2} />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M8 21l3-5m0 0l-2.5-3.5m2.5 3.5l4.5 1.5M10 8.5l3.5 2.5 2.5-3.5M7 11l3-2.5 2.5 1.5"
+      />
+    </svg>
+  );
+}
+
 export function MinimizeIcon(props: IconProps) {
   return (
     <svg {...getSvgProps(props)}>
@@ -833,6 +847,5 @@ export function GlobeIcon(props: IconProps) {
     </svg>
   );
 }
-
 
 

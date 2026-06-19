@@ -498,7 +498,7 @@
     "title": "WSL UI",
     "description": "WSL dağıtımlarını yönetmek için hafif bir masaüstü uygulaması.",
     "builtWith": "Tauri, React ve Rust ile geliştirilmiştir.",
-    "website": "Web Sitesi",
+    "website": "Maintainer",
     "github": "GitHub",
     "developedBy": "Geliştiren",
     "license": {

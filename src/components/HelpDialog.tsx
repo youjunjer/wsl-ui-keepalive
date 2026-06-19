@@ -23,6 +23,11 @@ import {
 import { getVersion } from "@tauri-apps/api/app";
 import { open } from "@tauri-apps/plugin-shell";
 
+const PROJECT_PROFILE_URL = "https://github.com/youjunjer";
+const PROJECT_REPOSITORY_URL = "https://github.com/youjunjer/wsl-ui-keepalive";
+const PROJECT_ISSUES_URL = "https://github.com/youjunjer/wsl-ui-keepalive/issues";
+const PROJECT_TROUBLESHOOTING_URL = "https://github.com/youjunjer/wsl-ui-keepalive/blob/main/docs/TROUBLESHOOTING.md";
+
 interface HelpDialogProps {
   onClose: () => void;
 }
@@ -364,7 +369,7 @@ export function HelpDialog({ onClose }: HelpDialogProps) {
               </HelpItem>
               <div className="mt-3 pt-3 border-t border-theme-border-secondary/30">
                 <button
-                  onClick={() => open("https://wsl-ui.octasoft.co.uk/docs/troubleshooting")}
+                  onClick={() => open(PROJECT_TROUBLESHOOTING_URL)}
                   className="flex items-center gap-2 text-theme-accent-primary hover:underline"
                 >
                   <ExternalLinkIcon size="sm" />
@@ -380,32 +385,32 @@ export function HelpDialog({ onClose }: HelpDialogProps) {
             >
               <div className="space-y-3">
                 <button
-                  onClick={() => open("https://wsl-ui.octasoft.co.uk")}
+                  onClick={() => open(PROJECT_PROFILE_URL)}
                   className="flex items-center gap-2 text-theme-accent-primary hover:underline"
                 >
                   <ExternalLinkIcon size="sm" />
                   {t('resources.wslUiWebsite')}
                 </button>
                 <button
-                  onClick={() => open("https://github.com/octasoft-ltd/wsl-ui")}
+                  onClick={() => open(PROJECT_REPOSITORY_URL)}
                   className="flex items-center gap-2 text-theme-accent-primary hover:underline"
                 >
                   <ExternalLinkIcon size="sm" />
                   {t('resources.githubRepo')}
                 </button>
                 <button
-                  onClick={() => open("https://github.com/octasoft-ltd/wsl-ui/issues")}
+                  onClick={() => open(PROJECT_ISSUES_URL)}
                   className="flex items-center gap-2 text-theme-accent-primary hover:underline"
                 >
                   <ExternalLinkIcon size="sm" />
                   {t('resources.reportIssue')}
                 </button>
                 <button
-                  onClick={() => open("https://www.octasoft.co.uk")}
+                  onClick={() => open(PROJECT_PROFILE_URL)}
                   className="flex items-center gap-2 text-theme-accent-primary hover:underline"
                 >
                   <ExternalLinkIcon size="sm" />
-                  {t('resources.octasoftWebsite')}
+                  {t('resources.githubProfile')}
                 </button>
                 <button
                   onClick={() => open("https://docs.microsoft.com/en-us/windows/wsl/")}

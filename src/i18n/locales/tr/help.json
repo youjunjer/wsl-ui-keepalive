@@ -125,10 +125,10 @@
   },
   "resources": {
     "title": "Kaynaklar ve Destek",
-    "wslUiWebsite": "WSL UI Web Sitesi",
+    "wslUiWebsite": "Maintainer",
     "githubRepo": "GitHub Deposu",
     "reportIssue": "Sorun Bildir",
-    "octasoftWebsite": "Octasoft Ltd Web Sitesi",
+    "githubProfile": "GitHub Profile",
     "microsoftDocs": "Microsoft WSL Belgeleri"
   }
 }

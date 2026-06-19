@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import { usePollingStore } from "../store/pollingStore";
 import { useHealthStore } from "../store/healthStore";
 import { useSettingsStore } from "../store/settingsStore";
@@ -14,8 +13,8 @@ import { logger } from "../utils/logger";
  *
  * Features:
  * - Starts polling on mount
- * - Pauses when window loses focus (minimized to tray, etc.)
- * - Resumes when window gains focus
+ * - Keeps polling while the dashboard is visible, even when the window loses focus
+ * - Pauses when the app is hidden
  * - Syncs polling intervals from settings
  * - Fetches WSL version once on mount
  */
@@ -86,59 +85,27 @@ export function usePolling() {
     }
   }, [compactingDistro, pause, resume]);
 
-  // Handle window focus changes (Tauri window API)
-  // Note: We check compactingDistro from the store directly to avoid stale closure issues
+  // Keep monitoring data fresh while the dashboard is visible.
+  // Do not pause on window blur: users often watch WSL UI while controlling another window.
   useEffect(() => {
-    let unlisten: (() => void) | null = null;
+    const handleVisibilityChange = () => {
+      const isCompacting = useDistroStore.getState().compactingDistro !== null;
 
-    const setupFocusListener = async () => {
-      try {
-        const appWindow = getCurrentWindow();
-        unlisten = await appWindow.onFocusChanged(({ payload: focused }) => {
-          // Check current compacting state from store (not from closure)
-          const isCompacting = useDistroStore.getState().compactingDistro !== null;
-
-          if (focused) {
-            if (isCompacting) {
-              logger.debug("Window focused but compact in progress, staying paused", "usePolling");
-            } else {
-              logger.debug("Window focused, resuming polls", "usePolling");
-              resume();
-            }
-          } else {
-            logger.debug("Window unfocused, pausing polls", "usePolling");
-            pause();
-          }
-        });
-      } catch (error) {
-        // Fallback to Page Visibility API if Tauri API not available (e.g., in browser dev mode)
-        logger.debug("Tauri window API not available, using Page Visibility API", "usePolling");
-
-        const handleVisibilityChange = () => {
-          const isCompacting = useDistroStore.getState().compactingDistro !== null;
-
-          if (document.hidden) {
-            logger.debug("App hidden, pausing polls", "usePolling");
-            pause();
-          } else if (isCompacting) {
-            logger.debug("App visible but compact in progress, staying paused", "usePolling");
-          } else {
-            logger.debug("App visible, resuming polls", "usePolling");
-            resume();
-          }
-        };
-
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-        unlisten = () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (document.hidden) {
+        logger.debug("App hidden, pausing polls", "usePolling");
+        pause();
+      } else if (isCompacting) {
+        logger.debug("App visible but compact in progress, staying paused", "usePolling");
+      } else {
+        logger.debug("App visible, resuming polls", "usePolling");
+        resume();
       }
     };
 
-    setupFocusListener();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      if (unlisten) {
-        unlisten();
-      }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [pause, resume]);
 

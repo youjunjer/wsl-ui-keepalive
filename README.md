@@ -21,7 +21,7 @@ Built with [Tauri](https://tauri.app/) (Rust) and [React](https://react.dev/)
 - **底部全域狀態列**：集中顯示 WSL IP、執行個體數、總記憶體、總磁碟、全域網路流量與 GPU 使用狀態。
 - **網路與 GPU 判讀**：WSL2 多個發行版共用同一個 VM 網路與 GPU 指標，因此以全域狀態呈現，避免在每張卡片上重複顯示造成誤解。
 
-**Developed by [Octasoft Ltd](https://www.octasoft.co.uk)** | **[Website](https://wsl-ui.octasoft.co.uk)**
+**Maintained by [尤濬哲 / youjunjer](https://github.com/youjunjer)** | **[GitHub](https://github.com/youjunjer/wsl-ui-keepalive)**
 
 [![Watch the demo](https://img.youtube.com/vi/q59ZtKr7aqw/maxresdefault.jpg)](https://youtu.be/q59ZtKr7aqw)
 
@@ -62,7 +62,7 @@ system language, or you can switch manually from the settings.
 | Turkish | Türkçe |
 
 Don't see your language?
-[Open an issue](https://github.com/octasoft-ltd/wsl-ui/issues) to request it.
+[Open an issue](https://github.com/youjunjer/wsl-ui-keepalive/issues) to request it.
 
 ## Installation
 
@@ -73,7 +73,7 @@ Don't see your language?
 ### From Releases
 
 Download the latest installer from the
-[Releases](https://github.com/octasoft-ltd/wsl-ui/releases) page.
+[Releases](https://github.com/youjunjer/wsl-ui-keepalive/releases) page.
 
 ### From Source
 
@@ -81,8 +81,8 @@ Download the latest installer from the
 [Rust](https://rustup.rs/), Windows (not WSL)
 
 ```bash
-git clone https://github.com/octasoft-ltd/wsl-ui.git
-cd wsl-ui
+git clone https://github.com/youjunjer/wsl-ui-keepalive.git
+cd wsl-ui-keepalive
 npm install
 npm run tauri dev
 ```
@@ -138,15 +138,11 @@ see the [LICENSE](LICENSE) file for details.
 - **Copyleft** — derivative works must also be open source under GPL-3.0
 - **Source code** must be provided with any distribution
 
-### Trademark Notice
-
-"WSL UI" and "Octasoft" are trademarks of Octasoft Ltd. See the
-[TRADEMARK](TRADEMARK) file for usage requirements for forks and derivative works.
-
 ## Links
 
-- [Website](https://wsl-ui.octasoft.co.uk)
-- [Report Issues](https://github.com/octasoft-ltd/wsl-ui/issues)
+- [Maintainer](https://github.com/youjunjer)
+- [Repository](https://github.com/youjunjer/wsl-ui-keepalive)
+- [Report Issues](https://github.com/youjunjer/wsl-ui-keepalive/issues)
 - [Security Policy](SECURITY.md)
 - [Changelog](CHANGELOG.md)
 - [Credits](CREDITS.md)

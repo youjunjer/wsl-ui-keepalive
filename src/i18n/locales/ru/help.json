@@ -125,10 +125,10 @@
   },
   "resources": {
     "title": "Ресурсы и поддержка",
-    "wslUiWebsite": "Сайт WSL UI",
+    "wslUiWebsite": "Maintainer",
     "githubRepo": "Репозиторий GitHub",
     "reportIssue": "Сообщить о проблеме",
-    "octasoftWebsite": "Сайт Octasoft Ltd",
+    "githubProfile": "GitHub Profile",
     "microsoftDocs": "Документация Microsoft WSL"
   }
 }

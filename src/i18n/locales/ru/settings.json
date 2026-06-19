@@ -498,7 +498,7 @@
     "title": "WSL UI",
     "description": "Лёгкое настольное приложение для управления дистрибутивами WSL.",
     "builtWith": "Создано на Tauri, React и Rust.",
-    "website": "Сайт",
+    "website": "Maintainer",
     "github": "GitHub",
     "developedBy": "Разработано",
     "license": {
