@@ -1,0 +1,21 @@
+{
+  "subtitle": "Mission Control",
+  "button": {
+    "new": "Nuovo",
+    "import": "Importa",
+    "sync": "Sincronizza",
+    "shutdown": "Arresta",
+    "systemTerminal": "Apri shell di sistema WSL",
+    "help": "Aiuto",
+    "settings": "Impostazioni"
+  },
+  "shutdownAll": {
+    "title": "Arresta tutte le distribuzioni",
+    "message": "Questo arresterà tutte le distribuzioni WSL in esecuzione. Qualsiasi lavoro non salvato andrà perso.",
+    "confirm": "Arresta tutto"
+  },
+  "keepAlive": {
+    "all": "Mantieni tutto attivo",
+    "allTooltip": "Seleziona o deseleziona keep alive per ogni distribuzione corrente"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "wsl": "WSL",
+  "instances": "Instances",
+  "active": "Active",
+  "mem": "Mem",
+  "diskTotal": "Disk",
+  "gpu": "GPU",
+  "primary": "Primary",
+  "dev": "Dev",
+  "disk": "DISK",
+  "updateWsl": {
+    "updating": "Waiting for administrator approval... Check for a UAC dialog",
+    "preRelease": "Update WSL (pre-release) - Requires administrator",
+    "default": "Update WSL - Requires administrator",
+    "uac": "UAC"
+  },
+  "diskMounts": {
+    "empty": "Disk Mounts",
+    "count": "Disk Mounts ({{count}} mounted)"
+  },
+  "preflight": {
+    "retry": "Retry Check"
+  },
+  "networkTotal": "Network",
+  "networkTooltip": "Upload/download in MB/s"
+}

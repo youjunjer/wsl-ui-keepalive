@@ -1,0 +1,21 @@
+{
+  "subtitle": "Görev Merkezi",
+  "button": {
+    "new": "Yeni",
+    "import": "İçe Aktar",
+    "sync": "Eşitle",
+    "shutdown": "Kapat",
+    "systemTerminal": "WSL Sistem Kabuğunu Aç",
+    "help": "Yardım",
+    "settings": "Ayarlar"
+  },
+  "shutdownAll": {
+    "title": "Tüm Dağıtımları Kapat",
+    "message": "Bu işlem çalışan tüm WSL dağıtımlarını kapatacaktır. Kaydedilmemiş çalışmalar kaybolacaktır.",
+    "confirm": "Tümünü Kapat"
+  },
+  "keepAlive": {
+    "all": "Tümünü etkin tut",
+    "allTooltip": "Mevcut her dagitim icin keep alive secimini ac veya temizle"
+  }
+}

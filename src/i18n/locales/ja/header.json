@@ -1,0 +1,21 @@
+{
+  "subtitle": "コントロールセンター",
+  "button": {
+    "new": "新規",
+    "import": "インポート",
+    "sync": "同期",
+    "shutdown": "シャットダウン",
+    "systemTerminal": "WSL システムシェルを開く",
+    "help": "ヘルプ",
+    "settings": "設定"
+  },
+  "shutdownAll": {
+    "title": "すべてのディストリビューションをシャットダウン",
+    "message": "実行中のすべての WSL ディストリビューションがシャットダウンされます。保存されていない作業は失われます。",
+    "confirm": "すべてシャットダウン"
+  },
+  "keepAlive": {
+    "all": "すべて実行を維持",
+    "allTooltip": "現在の各ディストリビューションの keep alive を選択または解除します"
+  }
+}
