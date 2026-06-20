@@ -503,29 +503,13 @@ export function DistroList() {
 
   return (
     <div>
-      {/* Filter Bar - Two rows on mobile, one row on desktop */}
+      {/* Filter Bar */}
       <div className="sticky top-0 z-20 -mx-6 px-6 py-3 mb-1 bg-theme-bg-primary/95 backdrop-blur-sm border-b border-theme-border-primary/50">
-        <div className="relative flex items-start gap-2 flex-wrap">
-        {/* IP Address - Always top right */}
-        {wslIp && (
-          <button
-            onClick={copyIpToClipboard}
-            data-testid="wsl-ip-display"
-            className="order-last ml-auto flex items-center gap-2 px-3 py-2 bg-theme-bg-secondary border border-theme-border-primary rounded-lg whitespace-nowrap hover:bg-theme-bg-hover transition-colors group shrink-0"
-            title={t('card.ipTooltip')}
-          >
-            <span className="text-xs font-mono text-theme-text-muted">{t('common:label.ip')}</span>
-            <span className="text-sm font-mono text-theme-accent-primary" data-testid="wsl-ip-value">{wslIp}</span>
-            <CopyIcon size="sm" className={`text-theme-text-muted group-hover:text-theme-accent-primary transition-colors ${ipCopied ? 'text-theme-status-running' : ''}`} />
-            {ipCopied && <span className="text-[10px] text-theme-status-running" data-testid="ip-copied-indicator">{t('common:label.copied')}</span>}
-          </button>
-        )}
-
-        {/* Filters */}
-        <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
-          {/* Status Filters */}
-          <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="status-filter-group">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
+              {/* Status Filters */}
+              <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="status-filter-group">
             <button
               onClick={() => setStatusFilter("all")}
               data-testid="status-filter-all"
@@ -563,13 +547,13 @@ export function DistroList() {
               <span className="w-2 h-2 rounded-full bg-theme-status-stopped" />
               <span className="text-[10px]" data-testid="offline-count">{offlineCount}</span>
             </button>
-          </div>
+              </div>
 
-          {/* Divider - hidden on very small screens */}
-          <div className="hidden sm:block w-px h-6 bg-theme-border-secondary" />
+              {/* Divider - hidden on very small screens */}
+              <div className="hidden sm:block w-px h-6 bg-theme-border-secondary" />
 
-          {/* Type Filters */}
-          <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="type-filter-group">
+              {/* Type Filters */}
+              <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="type-filter-group">
             <button
               onClick={() => setTypeFilter("all")}
               data-testid="type-filter-all"
@@ -608,13 +592,13 @@ export function DistroList() {
               Hyper-V
               <span className="text-[10px] opacity-70">{hypervCount}</span>
             </button>
-          </div>
+              </div>
 
-          {/* Divider - hidden on very small screens */}
-          <div className="hidden sm:block w-px h-6 bg-theme-border-secondary" />
+              {/* Divider - hidden on very small screens */}
+              <div className="hidden sm:block w-px h-6 bg-theme-border-secondary" />
 
-          {/* Source Filters */}
-          <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="source-filter-group">
+              {/* Source Filters */}
+              <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="source-filter-group">
             <button
               onClick={() => setSourceFilter("all")}
               data-testid="source-filter-all"
@@ -652,104 +636,120 @@ export function DistroList() {
                 </button>
               );
             })}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap justify-end shrink-0 ml-auto">
+              <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="view-mode-toggle">
+                <button
+                  type="button"
+                  onClick={() => handleViewModeChange("cards")}
+                  data-testid="view-mode-cards"
+                  aria-pressed={viewMode === "cards"}
+                  className={`p-1.5 rounded-md border transition-all ${
+                    viewMode === "cards"
+                      ? "bg-theme-accent-primary/20 text-theme-accent-primary border-theme-accent-primary/30"
+                      : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
+                  }`}
+                  title={t('view.cards')}
+                >
+                  <GridIcon size="sm" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleViewModeChange("list")}
+                  data-testid="view-mode-list"
+                  aria-pressed={viewMode === "list"}
+                  className={`p-1.5 rounded-md border transition-all ${
+                    viewMode === "list"
+                      ? "bg-theme-accent-primary/20 text-theme-accent-primary border-theme-accent-primary/30"
+                      : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
+                  }`}
+                  title={t('view.list')}
+                >
+                  <MenuIcon size="sm" />
+                </button>
+              </div>
+
+              {/* IP Address */}
+              {wslIp && (
+                <button
+                  onClick={copyIpToClipboard}
+                  data-testid="wsl-ip-display"
+                  className="flex items-center gap-2 px-3 py-2 bg-theme-bg-secondary border border-theme-border-primary rounded-lg whitespace-nowrap hover:bg-theme-bg-hover transition-colors group shrink-0"
+                  title={t('card.ipTooltip')}
+                >
+                  <span className="text-xs font-mono text-theme-text-muted">{t('common:label.ip')}</span>
+                  <span className="text-sm font-mono text-theme-accent-primary" data-testid="wsl-ip-value">{wslIp}</span>
+                  <CopyIcon size="sm" className={`text-theme-text-muted group-hover:text-theme-accent-primary transition-colors ${ipCopied ? 'text-theme-status-running' : ''}`} />
+                  {ipCopied && <span className="text-[10px] text-theme-status-running" data-testid="ip-copied-indicator">{t('common:label.copied')}</span>}
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Divider - hidden on very small screens */}
-          <div className="hidden sm:block w-px h-6 bg-theme-border-secondary" />
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* WSL Version Toggle Buttons */}
+            <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="version-filter-group">
+              {hasWsl1 && (
+                <button
+                  onClick={() => setWsl1Enabled(!wsl1Enabled)}
+                  data-testid="version-filter-wsl1"
+                  className={`px-2 py-1.5 text-xs font-medium rounded-md transition-all border flex items-center gap-1 ${
+                    wsl1Enabled
+                      ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                      : "border-transparent text-theme-text-muted/50 hover:text-theme-text-muted hover:bg-theme-bg-hover line-through"
+                  }`}
+                  title={wsl1Enabled ? t('filter.hideWsl1', { count: wsl1Count }) : t('filter.showWsl1', { count: wsl1Count })}
+                >
+                  {t('filter.v1')}
+                  <span className="text-[10px] opacity-70" data-testid="wsl1-count">{wsl1Count}</span>
+                </button>
+              )}
+              {hasWsl2 && (
+                <button
+                  onClick={() => setWsl2Enabled(!wsl2Enabled)}
+                  data-testid="version-filter-wsl2"
+                  className={`px-2 py-1.5 text-xs font-medium rounded-md transition-all border flex items-center gap-1 ${
+                    wsl2Enabled
+                      ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                      : "border-transparent text-theme-text-muted/50 hover:text-theme-text-muted hover:bg-theme-bg-hover line-through"
+                  }`}
+                  title={wsl2Enabled ? t('filter.hideWsl2', { count: wsl2Count }) : t('filter.showWsl2', { count: wsl2Count })}
+                >
+                  {t('filter.v2')}
+                  <span className="text-[10px] opacity-70" data-testid="wsl2-count">{wsl2Count}</span>
+                </button>
+              )}
+            </div>
 
-          {/* WSL Version Toggle Buttons */}
-          <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="version-filter-group">
-            {hasWsl1 && (
-              <button
-                onClick={() => setWsl1Enabled(!wsl1Enabled)}
-                data-testid="version-filter-wsl1"
-                className={`px-2 py-1.5 text-xs font-medium rounded-md transition-all border flex items-center gap-1 ${
-                  wsl1Enabled
-                    ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                    : "border-transparent text-theme-text-muted/50 hover:text-theme-text-muted hover:bg-theme-bg-hover line-through"
-                }`}
-                title={wsl1Enabled ? t('filter.hideWsl1', { count: wsl1Count }) : t('filter.showWsl1', { count: wsl1Count })}
-              >
-                {t('filter.v1')}
-                <span className="text-[10px] opacity-70" data-testid="wsl1-count">{wsl1Count}</span>
-              </button>
-            )}
-            {hasWsl2 && (
-              <button
-                onClick={() => setWsl2Enabled(!wsl2Enabled)}
-                data-testid="version-filter-wsl2"
-                className={`px-2 py-1.5 text-xs font-medium rounded-md transition-all border flex items-center gap-1 ${
-                  wsl2Enabled
-                    ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                    : "border-transparent text-theme-text-muted/50 hover:text-theme-text-muted hover:bg-theme-bg-hover line-through"
-                }`}
-                title={wsl2Enabled ? t('filter.hideWsl2', { count: wsl2Count }) : t('filter.showWsl2', { count: wsl2Count })}
-              >
-                {t('filter.v2')}
-                <span className="text-[10px] opacity-70" data-testid="wsl2-count">{wsl2Count}</span>
-              </button>
-            )}
-          </div>
-
-          {/* All keep-alive toggle - selects only current distributions */}
-          <button
-            type="button"
-            onClick={handleKeepAliveAllChange}
-            disabled={distroNames.length === 0 || isKeepAliveSaving}
-            data-testid="keep-alive-all-checkbox"
-            aria-pressed={allKeepAliveChecked}
-            className={`btn-cyber px-3 py-1.5 text-xs font-medium rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
-              allKeepAliveChecked
-                ? "bg-[rgba(var(--accent-primary-rgb),0.18)] text-theme-accent-primary border-[rgba(var(--accent-primary-rgb),0.45)]"
-                : isKeepAlivePartial
-                  ? "bg-amber-500/15 text-amber-400 border-amber-500/35"
-                  : "bg-theme-bg-tertiary hover:bg-theme-bg-hover text-theme-text-secondary hover:text-theme-text-primary border-theme-border-secondary"
-            }`}
-            title={tHeader('keepAlive.allTooltip')}
-          >
-            <span className={`w-3 h-3 rounded-sm border flex items-center justify-center ${
-              allKeepAliveChecked || isKeepAlivePartial
-                ? "border-theme-accent-primary bg-theme-accent-primary/20"
-                : "border-theme-border-secondary"
-            }`}>
-              {allKeepAliveChecked && <span className="w-1.5 h-1.5 rounded-[1px] bg-theme-accent-primary" />}
-              {isKeepAlivePartial && !allKeepAliveChecked && <span className="w-1.5 h-px bg-amber-400" />}
-            </span>
-            <span className="whitespace-nowrap">{tHeader('keepAlive.all')}</span>
-          </button>
-          </div>
-
-          <div className="ml-auto flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="view-mode-toggle">
+            {/* All keep-alive toggle - selects only current distributions */}
             <button
               type="button"
-              onClick={() => handleViewModeChange("cards")}
-              data-testid="view-mode-cards"
-              aria-pressed={viewMode === "cards"}
-              className={`p-1.5 rounded-md border transition-all ${
-                viewMode === "cards"
-                  ? "bg-theme-accent-primary/20 text-theme-accent-primary border-theme-accent-primary/30"
-                  : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
+              onClick={handleKeepAliveAllChange}
+              disabled={distroNames.length === 0 || isKeepAliveSaving}
+              data-testid="keep-alive-all-checkbox"
+              aria-pressed={allKeepAliveChecked}
+              className={`btn-cyber px-3 py-1.5 text-xs font-medium rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
+                allKeepAliveChecked
+                  ? "bg-[rgba(var(--accent-primary-rgb),0.18)] text-theme-accent-primary border-[rgba(var(--accent-primary-rgb),0.45)]"
+                  : isKeepAlivePartial
+                    ? "bg-amber-500/15 text-amber-400 border-amber-500/35"
+                    : "bg-theme-bg-tertiary hover:bg-theme-bg-hover text-theme-text-secondary hover:text-theme-text-primary border-theme-border-secondary"
               }`}
-              title={t('view.cards')}
+              title={tHeader('keepAlive.allTooltip')}
             >
-              <GridIcon size="sm" />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleViewModeChange("list")}
-              data-testid="view-mode-list"
-              aria-pressed={viewMode === "list"}
-              className={`p-1.5 rounded-md border transition-all ${
-                viewMode === "list"
-                  ? "bg-theme-accent-primary/20 text-theme-accent-primary border-theme-accent-primary/30"
-                  : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
-              }`}
-              title={t('view.list')}
-            >
-              <MenuIcon size="sm" />
+              <span className={`w-3 h-3 rounded-sm border flex items-center justify-center ${
+                allKeepAliveChecked || isKeepAlivePartial
+                  ? "border-theme-accent-primary bg-theme-accent-primary/20"
+                  : "border-theme-border-secondary"
+              }`}>
+                {allKeepAliveChecked && <span className="w-1.5 h-1.5 rounded-[1px] bg-theme-accent-primary" />}
+                {isKeepAlivePartial && !allKeepAliveChecked && <span className="w-1.5 h-px bg-amber-400" />}
+              </span>
+              <span className="whitespace-nowrap">{tHeader('keepAlive.all')}</span>
             </button>
           </div>
-        </div>
         </div>
       </div>
 

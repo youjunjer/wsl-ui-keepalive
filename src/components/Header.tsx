@@ -94,8 +94,8 @@ export function Header({ onOpenSettings }: HeaderProps) {
 
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-theme-text-primary">
-                  WSL<span className="font-bold text-[#f59e0b]">UI</span>
+                <h1 className="text-xl font-semibold tracking-tight text-theme-text-primary whitespace-nowrap">
+                  VM and WSL <span className="font-bold text-[#f59e0b]">STATUS UI</span>
                 </h1>
                 {appVersion && (
                   <span className="px-1.5 py-0.5 text-[10px] font-medium bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30">

@@ -1,12 +1,12 @@
-# WSL UI
+# VM and WSL STATUS UI
 
-A lightweight desktop application to manage Windows Subsystem for Linux (WSL)
-distributions.
+A lightweight desktop application to monitor and manage Hyper-V VMs and Windows
+Subsystem for Linux (WSL) distributions.
 
 Built with [Tauri](https://tauri.app/) (Rust) and [React](https://react.dev/)
 (TypeScript).
 
-## WSL UI Keepalive 版本
+## VM and WSL STATUS UI 版本
 
 這個 fork 以原版 WSL UI 為基礎，加入適合長時間運行多個 WSL
 發行版的管理功能。

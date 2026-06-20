@@ -10,7 +10,7 @@ import {
 describe('constants', () => {
   describe('APP_CONFIG', () => {
     it('has app name', () => {
-      expect(APP_CONFIG.APP_NAME).toBe('WSL UI');
+      expect(APP_CONFIG.APP_NAME).toBe('VM and WSL STATUS UI');
     });
 
     it('has refresh interval', () => {
@@ -60,7 +60,6 @@ describe('constants', () => {
     });
   });
 });
-
 
 
 

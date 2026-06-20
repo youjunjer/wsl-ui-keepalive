@@ -495,8 +495,8 @@
     "save": "Save"
   },
   "about": {
-    "title": "WSL UI",
-    "description": "A lightweight desktop application to manage WSL distributions.",
+    "title": "VM and WSL STATUS UI",
+    "description": "A lightweight desktop application to monitor and manage Hyper-V VMs and WSL distributions.",
     "builtWith": "Built with Tauri, React, and Rust.",
     "website": "Maintainer",
     "github": "GitHub",

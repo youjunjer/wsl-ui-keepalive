@@ -97,7 +97,10 @@ pub fn start_vm(_name: &str) -> Result<(), String> {
 
 #[cfg(target_os = "windows")]
 pub fn start_vm(name: &str) -> Result<(), String> {
-    run_vm_command("Start-VM -Name $args[0] -ErrorAction Stop", name)
+    run_vm_command(&format!(
+        "Start-VM -Name {} -ErrorAction Stop",
+        ps_single_quote(name)
+    ))
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -107,7 +110,10 @@ pub fn stop_vm(_name: &str) -> Result<(), String> {
 
 #[cfg(target_os = "windows")]
 pub fn stop_vm(name: &str) -> Result<(), String> {
-    run_vm_command("Stop-VM -Name $args[0] -TurnOff -Force -ErrorAction Stop", name)
+    run_vm_command(&format!(
+        "Stop-VM -Name {} -TurnOff -Force -ErrorAction Stop",
+        ps_single_quote(name)
+    ))
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -117,7 +123,10 @@ pub fn pause_vm(_name: &str) -> Result<(), String> {
 
 #[cfg(target_os = "windows")]
 pub fn pause_vm(name: &str) -> Result<(), String> {
-    run_vm_command("Suspend-VM -Name $args[0] -ErrorAction Stop", name)
+    run_vm_command(&format!(
+        "Suspend-VM -Name {} -ErrorAction Stop",
+        ps_single_quote(name)
+    ))
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -127,7 +136,10 @@ pub fn resume_vm(_name: &str) -> Result<(), String> {
 
 #[cfg(target_os = "windows")]
 pub fn resume_vm(name: &str) -> Result<(), String> {
-    run_vm_command("Resume-VM -Name $args[0] -ErrorAction Stop", name)
+    run_vm_command(&format!(
+        "Resume-VM -Name {} -ErrorAction Stop",
+        ps_single_quote(name)
+    ))
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -143,7 +155,9 @@ $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
-$ips = @(Get-VMNetworkAdapter -VMName $args[0] -ErrorAction Stop |
+$vmName = __VM_NAME__
+
+$ips = @(Get-VMNetworkAdapter -VMName $vmName -ErrorAction Stop |
   ForEach-Object { $_.IPAddresses } |
   Where-Object { $_ -and $_ -match '^\d{1,3}(\.\d{1,3}){3}$' })
 
@@ -156,13 +170,14 @@ if (-not $ip) {
 }
 
 if (-not $ip) {
-  throw "No IPv4 address found for Hyper-V VM '$($args[0])'."
+  throw "No IPv4 address found for Hyper-V VM '$vmName'."
 }
 
 [string]$ip
-"#;
+"#
+    .replace("__VM_NAME__", &ps_single_quote(name));
 
-    let ip = powershell(script, &[name])?.trim().to_string();
+    let ip = powershell(&script, &[])?.trim().to_string();
     if ip.is_empty() {
         return Err(format!("No IPv4 address found for Hyper-V VM '{}'.", name));
     }
@@ -176,9 +191,14 @@ if (-not $ip) {
 }
 
 #[cfg(target_os = "windows")]
-fn run_vm_command(script: &str, name: &str) -> Result<(), String> {
-    let _ = powershell(script, &[name])?;
+fn run_vm_command(script: &str) -> Result<(), String> {
+    let _ = powershell(script, &[])?;
     Ok(())
+}
+
+#[cfg(target_os = "windows")]
+fn ps_single_quote(value: &str) -> String {
+    format!("'{}'", value.replace('\'', "''"))
 }
 
 #[cfg(target_os = "windows")]

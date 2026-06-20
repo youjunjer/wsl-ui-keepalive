@@ -495,7 +495,7 @@
     "save": "حفظ"
   },
   "about": {
-    "title": "WSL UI",
+    "title": "VM and WSL STATUS UI",
     "description": "تطبيق سطح مكتب خفيف لإدارة توزيعات WSL.",
     "builtWith": "مبني بـ Tauri و React و Rust.",
     "website": "Maintainer",

@@ -8,8 +8,8 @@
 // ==================== Application Config ====================
 
 export const APP_CONFIG = {
-  APP_NAME: 'WSL UI',
-  APP_DESCRIPTION: 'Manage your Linux distributions',
+  APP_NAME: 'VM and WSL STATUS UI',
+  APP_DESCRIPTION: 'Monitor and manage your VMs and Linux distributions',
   REFRESH_INTERVAL_MS: 5000,
   DEBOUNCE_DELAY_MS: 300,
   TOAST_DURATION_MS: 3000,
@@ -79,7 +79,6 @@ export function getDistroIcon(name: string): string {
 
   return DISTRO_ICONS.default;
 }
-
 
 
 

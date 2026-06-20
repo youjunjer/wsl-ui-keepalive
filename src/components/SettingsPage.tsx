@@ -467,7 +467,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
                         <h2 className="text-2xl font-semibold text-stone-100">
-                          WSL<span className="font-bold text-amber-500">UI</span> Keepalive
+                          VM and WSL <span className="font-bold text-amber-500">STATUS UI</span>
                         </h2>
                         {appVersion && (
                           <span className="px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30">

@@ -495,7 +495,7 @@
     "save": "Kaydet"
   },
   "about": {
-    "title": "WSL UI",
+    "title": "VM and WSL STATUS UI",
     "description": "WSL dağıtımlarını yönetmek için hafif bir masaüstü uygulaması.",
     "builtWith": "Tauri, React ve Rust ile geliştirilmiştir.",
     "website": "Maintainer",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "WSL UI",
+  "productName": "VM and WSL STATUS UI",
   "identifier": "wsl-ui",
   "build": {
     "frontendDist": "../dist",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "WSL UI",
+        "title": "VM and WSL STATUS UI",
         "width": 1280,
         "height": 720,
         "minWidth": 800,
@@ -61,4 +61,3 @@
     }
   }
 }
-

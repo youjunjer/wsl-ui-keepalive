@@ -495,7 +495,7 @@
     "save": "保存"
   },
   "about": {
-    "title": "WSL UI",
+    "title": "VM and WSL STATUS UI",
     "description": "WSL ディストリビューションを管理するための軽量デスクトップアプリケーション。",
     "builtWith": "Tauri、React、Rust を使用して開発。",
     "website": "Maintainer",

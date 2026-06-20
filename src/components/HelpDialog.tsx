@@ -426,7 +426,7 @@ export function HelpDialog({ onClose }: HelpDialogProps) {
           {/* Footer */}
           <div className="flex items-center justify-between p-4 border-t border-theme-border-secondary bg-theme-bg-tertiary/30">
             <span className="text-xs text-theme-text-tertiary">
-              WSL UI {appVersion && `v${appVersion}`}
+              VM and WSL STATUS UI {appVersion && `v${appVersion}`}
             </span>
             <button
               onClick={onClose}

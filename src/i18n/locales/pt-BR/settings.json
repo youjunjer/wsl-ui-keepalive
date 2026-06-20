@@ -495,7 +495,7 @@
     "save": "Salvar"
   },
   "about": {
-    "title": "WSL UI",
+    "title": "VM and WSL STATUS UI",
     "description": "Um aplicativo de desktop leve para gerenciar distribuições WSL.",
     "builtWith": "Construído com Tauri, React e Rust.",
     "website": "Maintainer",

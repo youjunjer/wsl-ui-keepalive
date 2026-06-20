@@ -323,7 +323,7 @@ fn main() {
             let tray = TrayIconBuilder::new()
                 .icon(icon.clone())
                 .menu(&menu)
-                .tooltip("WSL UI")
+                .tooltip("VM and WSL STATUS UI")
                 .on_menu_event(|app, event| {
                     let event_id = event.id.as_ref();
                     match event_id {
