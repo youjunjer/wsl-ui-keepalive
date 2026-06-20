@@ -4,6 +4,10 @@
     "title": "未检测到实例",
     "description": "部署一个 WSL 发行版以开始使用"
   },
+  "view": {
+    "cards": "卡片视图",
+    "list": "列表视图"
+  },
   "filter": {
     "all": "全部",
     "allSources": "所有来源",
@@ -21,6 +25,13 @@
     "noDistros": "未找到发行版",
     "noMatch": "没有发行版匹配当前筛选条件",
     "clearFilters": "清除筛选"
+  },
+  "list": {
+    "name": "名称",
+    "state": "状态",
+    "version": "版本",
+    "source": "来源",
+    "sortBy": "按 {{column}} 排序"
   },
   "card": {
     "suspend": "挂起",

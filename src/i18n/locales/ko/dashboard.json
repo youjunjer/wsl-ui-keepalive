@@ -4,6 +4,10 @@
     "title": "배포판이 감지되지 않음",
     "description": "WSL 배포판을 설치하여 시작하세요"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "전체",
     "allSources": "모든 소스",
@@ -21,6 +25,13 @@
     "noDistros": "배포판을 찾을 수 없습니다",
     "noMatch": "현재 필터와 일치하는 배포판이 없습니다",
     "clearFilters": "필터 지우기"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "일시 중지",

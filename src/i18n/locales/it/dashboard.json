@@ -4,6 +4,10 @@
     "title": "Nessuna istanza rilevata",
     "description": "Distribuisci una distribuzione WSL per iniziare"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "Tutti",
     "allSources": "Tutte le sorgenti",
@@ -21,6 +25,13 @@
     "noDistros": "Nessuna distribuzione trovata",
     "noMatch": "Nessuna distribuzione corrisponde ai filtri attuali",
     "clearFilters": "Cancella filtri"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "Sospendi",

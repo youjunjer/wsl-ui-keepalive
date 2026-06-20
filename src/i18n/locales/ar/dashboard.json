@@ -4,6 +4,10 @@
     "title": "لم يتم اكتشاف توزيعات",
     "description": "انشر توزيعة WSL للبدء"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "الكل",
     "allSources": "جميع المصادر",
@@ -21,6 +25,13 @@
     "noDistros": "لم يتم العثور على توزيعات",
     "noMatch": "لا توجد توزيعات تطابق الفلتر الحالي",
     "clearFilters": "مسح الفلاتر"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "تعليق",

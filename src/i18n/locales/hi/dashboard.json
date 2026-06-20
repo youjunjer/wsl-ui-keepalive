@@ -4,6 +4,10 @@
     "title": "कोई इंस्टैंस नहीं मिला",
     "description": "शुरू करने के लिए एक WSL डिस्ट्रिब्यूशन डिप्लॉय करें"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "सभी",
     "allSources": "सभी स्रोत",
@@ -21,6 +25,13 @@
     "noDistros": "कोई डिस्ट्रिब्यूशन नहीं मिला",
     "noMatch": "वर्तमान फ़िल्टर से कोई डिस्ट्रिब्यूशन मेल नहीं खाता",
     "clearFilters": "फ़िल्टर साफ़ करें"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "सस्पेंड करें",

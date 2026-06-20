@@ -1,19 +1,165 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useDistroStore } from "../store/distroStore";
 import { useKeepAliveStore } from "../store/keepAliveStore";
+import { useResourceStore } from "../store/resourceStore";
 import { DistroCard } from "./DistroCard";
 import { wslService } from "../services/wslService";
-import { CopyIcon, SourceIcon } from "./icons";
-import type { InstallSource } from "../types/distribution";
-import { INSTALL_SOURCE_COLORS, INSTALL_SOURCE_NAMES } from "../types/distribution";
+import { CopyIcon, GridIcon, MenuIcon, RunningPersonIcon, SourceIcon } from "./icons";
+import type { Distribution, InstallSource } from "../types/distribution";
+import { formatBytes, INSTALL_SOURCE_COLORS, INSTALL_SOURCE_NAMES } from "../types/distribution";
 
 type StatusFilter = "all" | "online" | "offline";
+type ViewMode = "cards" | "list";
+type SortKey = "name" | "state" | "version" | "source" | "disk" | "memory" | "cpu";
+type SortDirection = "asc" | "desc";
+
+const VIEW_MODE_STORAGE_KEY = "wslui-dashboard-view-mode";
+
+function getInitialViewMode(): ViewMode {
+  if (typeof window === "undefined") return "cards";
+  return window.localStorage.getItem(VIEW_MODE_STORAGE_KEY) === "list" ? "list" : "cards";
+}
+
+function DistroTable({
+  distributions,
+  sortKey,
+  sortDirection,
+  onSortChange,
+}: {
+  distributions: Distribution[];
+  sortKey: SortKey;
+  sortDirection: SortDirection;
+  onSortChange: (key: SortKey) => void;
+}) {
+  const { t } = useTranslation("dashboard");
+  const { isEnabled: isKeepAliveEnabled } = useKeepAliveStore();
+  const { getDistroResources } = useResourceStore();
+
+  const SortHeader = ({
+    id,
+    children,
+    align = "left",
+  }: {
+    id: SortKey;
+    children: ReactNode;
+    align?: "left" | "right";
+  }) => {
+    const active = sortKey === id;
+    return (
+      <button
+        type="button"
+        onClick={() => onSortChange(id)}
+        className={`inline-flex items-center gap-1.5 rounded px-1 py-0.5 transition-colors hover:text-theme-accent-primary ${
+          align === "right" ? "justify-end" : ""
+        } ${active ? "text-theme-accent-primary" : "text-theme-text-muted"}`}
+        title={t('list.sortBy', { column: children })}
+      >
+        <span>{children}</span>
+        {active && (
+          <span className="text-[9px] font-mono uppercase">
+            {sortDirection}
+          </span>
+        )}
+      </button>
+    );
+  };
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-theme-border-primary bg-theme-bg-secondary/40" data-testid="distro-list-view">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] text-left">
+          <thead className="bg-theme-bg-primary/70 border-b border-theme-border-primary">
+            <tr className="text-[10px] font-mono uppercase tracking-wider text-theme-text-muted">
+              <th className="px-4 py-3 font-medium"><SortHeader id="name">{t('list.name')}</SortHeader></th>
+              <th className="px-3 py-3 font-medium"><SortHeader id="state">{t('list.state')}</SortHeader></th>
+              <th className="px-3 py-3 font-medium"><SortHeader id="version">{t('list.version')}</SortHeader></th>
+              <th className="px-3 py-3 font-medium"><SortHeader id="source">{t('list.source')}</SortHeader></th>
+              <th className="px-3 py-3 font-medium text-right"><SortHeader id="disk" align="right">{t('common:label.disk')}</SortHeader></th>
+              <th className="px-3 py-3 font-medium text-right"><SortHeader id="memory" align="right">{t('common:label.memory')}</SortHeader></th>
+              <th className="px-3 py-3 font-medium text-right"><SortHeader id="cpu" align="right">{t('common:label.cpu')}</SortHeader></th>
+              <th className="px-4 py-3 font-medium text-center">{t('card.keepAlive')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-theme-border-primary/70">
+            {distributions.map((distro) => {
+              const resources = distro.state === "Running" ? getDistroResources(distro.name) : undefined;
+              const source = distro.metadata?.installSource || "unknown";
+              const sourceColor = INSTALL_SOURCE_COLORS[source];
+              const keepAliveEnabled = isKeepAliveEnabled(distro.name);
+
+              return (
+                <tr key={distro.name} className="hover:bg-theme-bg-hover/50 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                        distro.state === "Running"
+                          ? "bg-theme-status-running shadow-[0_0_8px_rgba(var(--status-running-rgb),0.8)]"
+                          : "bg-theme-status-stopped"
+                      }`} />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-semibold text-sm text-theme-text-primary truncate">{distro.name}</span>
+                          {distro.isDefault && (
+                            <span className="shrink-0 text-[10px] px-1.5 py-0.5 bg-[rgba(var(--accent-primary-rgb),0.1)] text-theme-accent-primary rounded border border-[rgba(var(--accent-primary-rgb),0.3)] font-mono uppercase">
+                              {t('common:status.primary')}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-theme-text-muted truncate">{distro.osInfo || `WSL ${distro.version}`}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3">
+                    <span className={`text-xs font-mono ${
+                      distro.state === "Running" ? "text-theme-status-running" : "text-theme-text-muted"
+                    }`}>
+                      {distro.state === "Running" ? t('common:status.online') : t('common:status.offline')}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3">
+                    <span className="text-xs font-mono text-blue-400">v{distro.version}</span>
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-2" title={INSTALL_SOURCE_NAMES[source]}>
+                      <SourceIcon source={source} className="!w-4 !h-4" />
+                      <span className="text-xs text-theme-text-secondary" style={{ color: sourceColor }}>
+                        {INSTALL_SOURCE_NAMES[source]}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3 text-right data-value text-xs text-theme-text-secondary">
+                    {distro.diskSize && distro.diskSize > 0 ? formatBytes(distro.diskSize) : "—"}
+                  </td>
+                  <td className="px-3 py-3 text-right data-value text-xs text-theme-accent-primary">
+                    {resources ? formatBytes(resources.memoryUsedBytes) : "—"}
+                  </td>
+                  <td className="px-3 py-3 text-right data-value text-xs text-theme-status-warning">
+                    {resources?.cpuPercent != null ? `${resources.cpuPercent.toFixed(1)}%` : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-center" title={keepAliveEnabled ? t('card.keepAlive') : t('card.keepAliveTooltip')}>
+                      <RunningPersonIcon
+                        size="sm"
+                        className={keepAliveEnabled ? "text-theme-accent-primary" : "text-theme-text-muted/50"}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 export function DistroList() {
   const { t } = useTranslation("dashboard");
   const { t: tHeader } = useTranslation("header");
   const { distributions, isLoading } = useDistroStore();
+  const { getDistroResources } = useResourceStore();
   const {
     settings: keepAliveSettings,
     isSaving: isKeepAliveSaving,
@@ -24,6 +170,9 @@ export function DistroList() {
   // WSL version toggles - both enabled by default (show all)
   const [wsl1Enabled, setWsl1Enabled] = useState(true);
   const [wsl2Enabled, setWsl2Enabled] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode);
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [wslIp, setWslIp] = useState<string | null>(null);
   const [ipCopied, setIpCopied] = useState(false);
 
@@ -119,11 +268,44 @@ export function DistroList() {
     return true;
   });
 
-  // Sort: primary first, then alphabetically by name
-  const sortedDistributions = [...filteredDistributions].sort((a, b) => {
+  // Card mode keeps the original behavior: primary first, then alphabetically by name.
+  const cardDistributions = [...filteredDistributions].sort((a, b) => {
     if (a.isDefault && !b.isDefault) return -1;
     if (!a.isDefault && b.isDefault) return 1;
     return a.name.localeCompare(b.name);
+  });
+
+  const sortedDistributions = [...filteredDistributions].sort((a, b) => {
+    const sourceA = a.metadata?.installSource || "unknown";
+    const sourceB = b.metadata?.installSource || "unknown";
+    const resourcesA = getDistroResources(a.name);
+    const resourcesB = getDistroResources(b.name);
+    const valueByKey = (distro: Distribution, key: SortKey) => {
+      const resources = distro.name === a.name ? resourcesA : resourcesB;
+      switch (key) {
+        case "name": return distro.name.toLocaleLowerCase();
+        case "state": return distro.state === "Running" ? 0 : 1;
+        case "version": return distro.version;
+        case "source": return distro === a ? sourceA : sourceB;
+        case "disk": return distro.diskSize ?? null;
+        case "memory": return resources?.memoryUsedBytes ?? null;
+        case "cpu": return resources?.cpuPercent ?? null;
+      }
+    };
+
+    const valueA = valueByKey(a, sortKey);
+    const valueB = valueByKey(b, sortKey);
+    const direction = sortDirection === "asc" ? 1 : -1;
+
+    if (valueA == null && valueB == null) return a.name.localeCompare(b.name);
+    if (valueA == null) return 1;
+    if (valueB == null) return -1;
+
+    if (typeof valueA === "number" && typeof valueB === "number") {
+      return (valueA - valueB) * direction || a.name.localeCompare(b.name);
+    }
+
+    return String(valueA).localeCompare(String(valueB)) * direction || a.name.localeCompare(b.name);
   });
 
   // Get unique sources present in the distributions, in preferred display order
@@ -160,6 +342,21 @@ export function DistroList() {
     await setEnabledDistros(allKeepAliveChecked ? [] : distroNames);
   };
 
+  const handleViewModeChange = (nextMode: ViewMode) => {
+    setViewMode(nextMode);
+    window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, nextMode);
+  };
+
+  const handleSortChange = (nextKey: SortKey) => {
+    if (sortKey === nextKey) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      return;
+    }
+
+    setSortKey(nextKey);
+    setSortDirection(nextKey === "name" || nextKey === "state" || nextKey === "source" ? "asc" : "desc");
+  };
+
   return (
     <div>
       {/* Filter Bar - Two rows on mobile, one row on desktop */}
@@ -182,6 +379,7 @@ export function DistroList() {
 
         {/* Filters */}
         <div className={`flex items-center gap-2 flex-wrap ${wslIp ? 'pr-44 lg:pr-48' : ''}`}>
+          <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
           {/* Status Filters */}
           <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="status-filter-group">
             <button
@@ -330,6 +528,38 @@ export function DistroList() {
             </span>
             <span className="whitespace-nowrap">{tHeader('keepAlive.all')}</span>
           </button>
+          </div>
+
+          <div className="ml-auto flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="view-mode-toggle">
+            <button
+              type="button"
+              onClick={() => handleViewModeChange("cards")}
+              data-testid="view-mode-cards"
+              aria-pressed={viewMode === "cards"}
+              className={`p-1.5 rounded-md border transition-all ${
+                viewMode === "cards"
+                  ? "bg-theme-accent-primary/20 text-theme-accent-primary border-theme-accent-primary/30"
+                  : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
+              }`}
+              title={t('view.cards')}
+            >
+              <GridIcon size="sm" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleViewModeChange("list")}
+              data-testid="view-mode-list"
+              aria-pressed={viewMode === "list"}
+              className={`p-1.5 rounded-md border transition-all ${
+                viewMode === "list"
+                  ? "bg-theme-accent-primary/20 text-theme-accent-primary border-theme-accent-primary/30"
+                  : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
+              }`}
+              title={t('view.list')}
+            >
+              <MenuIcon size="sm" />
+            </button>
+          </div>
         </div>
         </div>
       </div>
@@ -355,11 +585,20 @@ export function DistroList() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {sortedDistributions.map((distro, index) => (
-            <DistroCard key={distro.name} distro={distro} index={index} />
-          ))}
-        </div>
+        viewMode === "cards" ? (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3" data-testid="distro-card-view">
+            {cardDistributions.map((distro, index) => (
+              <DistroCard key={distro.name} distro={distro} index={index} />
+            ))}
+          </div>
+        ) : (
+          <DistroTable
+            distributions={sortedDistributions}
+            sortKey={sortKey}
+            sortDirection={sortDirection}
+            onSortChange={handleSortChange}
+          />
+        )
       )}
     </div>
   );

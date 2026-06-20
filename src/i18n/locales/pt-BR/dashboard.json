@@ -4,6 +4,10 @@
     "title": "Nenhuma instância detectada",
     "description": "Instale uma distribuição WSL para começar"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "Todas",
     "allSources": "Todas as fontes",
@@ -21,6 +25,13 @@
     "noDistros": "Nenhuma distribuição encontrada",
     "noMatch": "Nenhuma distribuição corresponde aos filtros atuais",
     "clearFilters": "Limpar filtros"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "Suspender",

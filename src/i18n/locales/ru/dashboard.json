@@ -4,6 +4,10 @@
     "title": "Экземпляры не обнаружены",
     "description": "Разверните дистрибутив WSL для начала работы"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "Все",
     "allSources": "Все источники",
@@ -21,6 +25,13 @@
     "noDistros": "Дистрибутивы не найдены",
     "noMatch": "Нет дистрибутивов, соответствующих текущим фильтрам",
     "clearFilters": "Сбросить фильтры"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "Приостановить",

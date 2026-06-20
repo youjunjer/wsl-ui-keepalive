@@ -4,6 +4,10 @@
     "title": "Keine Instanzen erkannt",
     "description": "Stellen Sie eine WSL-Distribution bereit, um zu beginnen"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "Alle",
     "allSources": "Alle Quellen",
@@ -21,6 +25,13 @@
     "noDistros": "Keine Distributionen gefunden",
     "noMatch": "Keine Distributionen entsprechen den aktuellen Filtern",
     "clearFilters": "Filter löschen"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "Anhalten",

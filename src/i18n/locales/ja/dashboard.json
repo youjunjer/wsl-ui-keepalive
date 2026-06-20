@@ -4,6 +4,10 @@
     "title": "インスタンスが見つかりません",
     "description": "WSL ディストリビューションをインストールして始めましょう"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "すべて",
     "allSources": "すべてのソース",
@@ -21,6 +25,13 @@
     "noDistros": "ディストリビューションが見つかりません",
     "noMatch": "現在のフィルターに一致するディストリビューションはありません",
     "clearFilters": "フィルターをクリア"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "一時停止",

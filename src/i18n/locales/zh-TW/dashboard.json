@@ -4,6 +4,10 @@
     "title": "未偵測到執行個體",
     "description": "部署一個 WSL 發行版以開始使用"
   },
+  "view": {
+    "cards": "卡片檢視",
+    "list": "列表檢視"
+  },
   "filter": {
     "all": "全部",
     "allSources": "所有來源",
@@ -21,6 +25,13 @@
     "noDistros": "未找到發行版",
     "noMatch": "沒有發行版符合目前的篩選條件",
     "clearFilters": "清除篩選"
+  },
+  "list": {
+    "name": "名稱",
+    "state": "狀態",
+    "version": "版本",
+    "source": "來源",
+    "sortBy": "依 {{column}} 排序"
   },
   "card": {
     "suspend": "暫停",

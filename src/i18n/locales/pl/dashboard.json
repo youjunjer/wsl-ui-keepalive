@@ -4,6 +4,10 @@
     "title": "Nie wykryto instancji",
     "description": "Wdróż dystrybucję WSL, aby rozpocząć"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "Wszystkie",
     "allSources": "Wszystkie źródła",
@@ -21,6 +25,13 @@
     "noDistros": "Nie znaleziono dystrybucji",
     "noMatch": "Żadna dystrybucja nie pasuje do bieżących filtrów",
     "clearFilters": "Wyczyść filtry"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "Wstrzymaj",

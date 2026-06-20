@@ -4,6 +4,10 @@
     "title": "Örnek Algılanamadı",
     "description": "Başlamak için bir WSL dağıtımı kurun"
   },
+  "view": {
+    "cards": "Card view",
+    "list": "List view"
+  },
   "filter": {
     "all": "Tümü",
     "allSources": "Tüm Kaynaklar",
@@ -21,6 +25,13 @@
     "noDistros": "Dağıtım bulunamadı",
     "noMatch": "Geçerli filtrelerle eşleşen dağıtım yok",
     "clearFilters": "Filtreleri temizle"
+  },
+  "list": {
+    "name": "Name",
+    "state": "State",
+    "version": "Version",
+    "source": "Source",
+    "sortBy": "Sort by {{column}}"
   },
   "card": {
     "suspend": "Askıya Al",
