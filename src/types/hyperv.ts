@@ -1,4 +1,5 @@
 export interface HyperVVm {
+  id: string;
   name: string;
   state: string;
   status?: string | null;

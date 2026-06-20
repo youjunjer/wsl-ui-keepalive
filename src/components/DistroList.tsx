@@ -260,7 +260,7 @@ function HyperVCard({ vm }: { vm: HyperVVm }) {
           </span>
         </button>
         <button
-          onClick={() => openRdp(vm.name)}
+          onClick={() => openRdp(vm.id, vm.name)}
           disabled={disabled || !running}
           className="btn-cyber p-2 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-tertiary hover:bg-theme-bg-hover text-blue-500 hover:text-blue-400 border-theme-border-secondary"
           title={t('card.openRdp')}

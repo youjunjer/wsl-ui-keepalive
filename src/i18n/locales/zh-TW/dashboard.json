@@ -37,7 +37,7 @@
     "suspend": "暫停",
     "launch": "啟動",
     "openTerminal": "開啟終端",
-    "openRdp": "開啟遠端桌面",
+    "openRdp": "開啟 Hyper-V 主控台",
     "quickActions": "快捷操作",
     "deleteDistro": "刪除發行版",
     "keepAlive": "保持運行",

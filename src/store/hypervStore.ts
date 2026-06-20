@@ -14,7 +14,7 @@ interface HyperVStore {
   stopVm: (name: string) => Promise<void>;
   pauseVm: (name: string) => Promise<void>;
   resumeVm: (name: string) => Promise<void>;
-  openRdp: (name: string) => Promise<void>;
+  openRdp: (id: string, name: string) => Promise<void>;
 }
 
 export const useHyperVStore = create<HyperVStore>((set, get) => ({
@@ -86,12 +86,12 @@ export const useHyperVStore = create<HyperVStore>((set, get) => ({
     }
   },
 
-  openRdp: async (name: string) => {
+  openRdp: async (id: string, name: string) => {
     set({ error: null });
     try {
-      await hypervService.openRdp(name);
+      await hypervService.openRdp(id);
     } catch (error) {
-      logger.error("Failed to open Hyper-V RDP:", "HyperVStore", name, error);
+      logger.error("Failed to open Hyper-V console:", "HyperVStore", name, error);
       set({ error: String(error) });
     }
   },

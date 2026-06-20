@@ -5,6 +5,7 @@ use std::process::Command;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct HyperVVm {
+    pub id: String,
     pub name: String,
     pub state: String,
     pub status: Option<String>,
@@ -53,6 +54,7 @@ $items = Get-VM | ForEach-Object {
   } catch {}
 
   [PSCustomObject]@{
+    id = [string]$vm.Id
     name = $vm.Name
     state = [string]$vm.State
     status = if ($vm.Status) { [string]$vm.Status } else { $null }
@@ -143,49 +145,23 @@ pub fn resume_vm(name: &str) -> Result<(), String> {
 }
 
 #[cfg(not(target_os = "windows"))]
-pub fn open_rdp(_name: &str) -> Result<(), String> {
+pub fn open_console(_id: &str) -> Result<(), String> {
     Err("Hyper-V is only available on Windows".to_string())
 }
 
 #[cfg(target_os = "windows")]
-pub fn open_rdp(name: &str) -> Result<(), String> {
-    let script = r#"
-$ProgressPreference = 'SilentlyContinue'
-$ErrorActionPreference = 'Stop'
-[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
-$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
-
-$vmName = __VM_NAME__
-
-$ips = @(Get-VMNetworkAdapter -VMName $vmName -ErrorAction Stop |
-  ForEach-Object { $_.IPAddresses } |
-  Where-Object { $_ -and $_ -match '^\d{1,3}(\.\d{1,3}){3}$' })
-
-$ip = $ips |
-  Where-Object { $_ -match '^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)' } |
-  Select-Object -First 1
-
-if (-not $ip) {
-  $ip = $ips | Select-Object -First 1
-}
-
-if (-not $ip) {
-  throw "No IPv4 address found for Hyper-V VM '$vmName'."
-}
-
-[string]$ip
-"#
-    .replace("__VM_NAME__", &ps_single_quote(name));
-
-    let ip = powershell(&script, &[])?.trim().to_string();
-    if ip.is_empty() {
-        return Err(format!("No IPv4 address found for Hyper-V VM '{}'.", name));
+pub fn open_console(id: &str) -> Result<(), String> {
+    if id.trim().is_empty() {
+        return Err("Hyper-V VM id is empty".to_string());
     }
 
-    Command::new("mstsc.exe")
-        .arg(format!("/v:{}", ip))
+    let host = std::env::var("COMPUTERNAME").unwrap_or_else(|_| "localhost".to_string());
+    Command::new("vmconnect.exe")
+        .arg(host)
+        .arg("-G")
+        .arg(id)
         .spawn()
-        .map_err(|e| format!("Failed to open Remote Desktop: {}", e))?;
+        .map_err(|e| format!("Failed to open Hyper-V console: {}", e))?;
 
     Ok(())
 }

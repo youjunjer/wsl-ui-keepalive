@@ -37,7 +37,7 @@
     "suspend": "Suspend",
     "launch": "Launch",
     "openTerminal": "Open Terminal",
-    "openRdp": "Open Remote Desktop",
+    "openRdp": "Open Hyper-V Console",
     "quickActions": "Quick Actions",
     "deleteDistro": "Delete distribution",
     "keepAlive": "Keep alive",

@@ -103,8 +103,8 @@ pub async fn resume_hyperv_vm(name: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn open_hyperv_rdp(name: String) -> Result<(), String> {
-    tokio::task::spawn_blocking(move || crate::hyperv::open_rdp(&name))
+pub async fn open_hyperv_rdp(id: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || crate::hyperv::open_console(&id))
         .await
         .map_err(|e| format!("Task failed: {}", e))?
 }
