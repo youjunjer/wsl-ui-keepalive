@@ -94,6 +94,7 @@ function DistroTable({
               const distro = isWsl ? instance.distro : null;
               const vm = instance.type === "hyperv" ? instance.vm : null;
               const running = isWsl ? distro!.state === "Running" : isHyperVRunning(vm!.state);
+              const vmIpAddress = vm?.ipAddresses.find((ip) => ip && !ip.includes(":"));
               const resources = isWsl && running ? getDistroResources(distro!.name) : undefined;
               const keepAliveEnabled = isWsl ? isKeepAliveEnabled(distro!.name) : false;
               const rowKey = `${instance.type}:${instance.name}`;
@@ -116,9 +117,11 @@ function DistroTable({
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-theme-text-muted truncate">
-                          {isWsl ? (distro!.osInfo || `WSL ${distro!.version}`) : (vm!.status || vm!.state)}
-                        </div>
+                        {(isWsl || (running && vmIpAddress)) && (
+                          <div className="text-xs text-theme-text-muted truncate">
+                            {isWsl ? (distro!.osInfo || `WSL ${distro!.version}`) : `IP ${vmIpAddress}`}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -154,7 +157,7 @@ function DistroTable({
                   <td className="px-3 py-3 text-right data-value text-xs text-theme-status-warning">
                     {isWsl
                       ? (resources?.cpuPercent != null ? `${resources.cpuPercent.toFixed(1)}%` : "—")
-                      : (vm!.cpuUsagePercent != null ? `${vm!.cpuUsagePercent.toFixed(1)}%` : "—")}
+                      : (running && vm!.cpuUsagePercent != null ? `${vm!.cpuUsagePercent.toFixed(1)}%` : "—")}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-center" title={keepAliveEnabled ? t('card.keepAlive') : t('card.keepAliveTooltip')}>
@@ -214,11 +217,9 @@ function HyperVCard({ vm }: { vm: HyperVVm }) {
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-theme-text-primary text-lg break-words">{vm.name}</h3>
-          {ipAddress && (
-            <p className="text-xs font-mono text-theme-text-muted mt-0.5 truncate">
-              IP {ipAddress}
-            </p>
-          )}
+          <p className="text-xs font-mono text-theme-text-muted mt-0.5 truncate">
+            IP {ipAddress || "-"}
+          </p>
         </div>
       </div>
 
@@ -238,7 +239,7 @@ function HyperVCard({ vm }: { vm: HyperVVm }) {
         <div className="text-center">
           <span className="data-label block mb-1">{t('common:label.cpu')}</span>
           <span className="data-value text-sm text-theme-status-warning">
-            {vm.cpuUsagePercent != null ? `${vm.cpuUsagePercent.toFixed(1)}%` : "—"}
+            {running && vm.cpuUsagePercent != null ? `${vm.cpuUsagePercent.toFixed(1)}%` : "—"}
           </span>
         </div>
       </div>

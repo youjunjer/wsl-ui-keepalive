@@ -65,7 +65,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
 
   return (
     <>
-      <header className="relative flex items-center justify-between px-6 py-3 border-b border-theme-border-primary bg-gradient-to-r from-theme-bg-primary via-theme-bg-secondary to-theme-bg-primary">
+      <header className="relative flex items-center justify-between gap-3 flex-wrap px-6 py-3 border-b border-theme-border-primary bg-gradient-to-r from-theme-bg-primary via-theme-bg-secondary to-theme-bg-primary">
         {/* Ambient glow effect */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-1/4 w-96 h-32 bg-[#f97316]/5 blur-3xl rounded-full" />
@@ -73,7 +73,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
         </div>
 
         {/* Left: Logo, title, and system info */}
-        <div className="relative flex items-center gap-6">
+        <div className="relative flex items-center gap-6 min-w-0">
           {/* Logo and title */}
           <div className="flex items-center gap-4">
             {/* Cyber-styled logo */}
@@ -137,12 +137,12 @@ export function Header({ onOpenSettings }: HeaderProps) {
         </div>
 
         {/* Right: Action buttons */}
-        <div className="relative flex items-center gap-3">
+        <div className="relative flex items-center justify-end gap-3 flex-wrap ml-auto">
           {/* Primary action - New */}
           <Button
             variant="success"
             size="sm"
-            className="btn-cyber"
+            className="btn-cyber whitespace-nowrap min-w-[5rem]"
             icon={<PlusIcon size="sm" />}
             onClick={() => setShowNewDialog(true)}
             disabled={isLoading || !!actionInProgress}
@@ -155,7 +155,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
           <Button
             variant="accent"
             size="sm"
-            className="btn-cyber"
+            className="btn-cyber whitespace-nowrap min-w-[5rem]"
             icon={<DownloadIcon size="sm" />}
             onClick={() => setShowImportDialog(true)}
             disabled={isLoading || !!actionInProgress}
@@ -167,7 +167,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
           <Button
             variant="secondary"
             size="sm"
-            className="btn-cyber"
+            className="btn-cyber whitespace-nowrap min-w-[5rem]"
             icon={<RefreshIcon size="sm" className={isLoading ? "animate-spin" : ""} />}
             onClick={() => fetchDistros(false, true)}
             disabled={isLoading || !!actionInProgress}
@@ -180,7 +180,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
           <Button
             variant="danger"
             size="sm"
-            className="btn-cyber"
+            className="btn-cyber whitespace-nowrap min-w-[5rem]"
             icon={<ShutdownIcon size="sm" />}
             onClick={() => setShowShutdownConfirm(true)}
             disabled={isLoading || !!actionInProgress}
