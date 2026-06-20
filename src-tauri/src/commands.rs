@@ -68,6 +68,41 @@ pub async fn list_distributions() -> Result<Vec<Distribution>, String> {
 }
 
 #[tauri::command]
+pub async fn list_hyperv_vms() -> Result<Vec<crate::hyperv::HyperVVm>, String> {
+    tokio::task::spawn_blocking(crate::hyperv::list_vms)
+        .await
+        .map_err(|e| format!("Task failed: {}", e))?
+}
+
+#[tauri::command]
+pub async fn start_hyperv_vm(name: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || crate::hyperv::start_vm(&name))
+        .await
+        .map_err(|e| format!("Task failed: {}", e))?
+}
+
+#[tauri::command]
+pub async fn stop_hyperv_vm(name: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || crate::hyperv::stop_vm(&name))
+        .await
+        .map_err(|e| format!("Task failed: {}", e))?
+}
+
+#[tauri::command]
+pub async fn pause_hyperv_vm(name: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || crate::hyperv::pause_vm(&name))
+        .await
+        .map_err(|e| format!("Task failed: {}", e))?
+}
+
+#[tauri::command]
+pub async fn resume_hyperv_vm(name: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || crate::hyperv::resume_vm(&name))
+        .await
+        .map_err(|e| format!("Task failed: {}", e))?
+}
+
+#[tauri::command]
 pub fn refresh_tray_menu(app: AppHandle) -> Result<(), String> {
     let tray_state: tauri::State<TrayState> = app.state();
     let tray_guard = tray_state

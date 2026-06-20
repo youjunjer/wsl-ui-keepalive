@@ -3,16 +3,22 @@ import { useTranslation } from "react-i18next";
 import { useDistroStore } from "../store/distroStore";
 import { useKeepAliveStore } from "../store/keepAliveStore";
 import { useResourceStore } from "../store/resourceStore";
+import { useHyperVStore } from "../store/hypervStore";
 import { DistroCard } from "./DistroCard";
 import { wslService } from "../services/wslService";
-import { CopyIcon, GridIcon, MenuIcon, RunningPersonIcon, SourceIcon } from "./icons";
+import { CopyIcon, GridIcon, MenuIcon, PauseIcon, PlayIcon, RunningPersonIcon, SourceIcon, StopIcon } from "./icons";
 import type { Distribution, InstallSource } from "../types/distribution";
 import { formatBytes, INSTALL_SOURCE_COLORS, INSTALL_SOURCE_NAMES } from "../types/distribution";
+import type { HyperVVm } from "../types/hyperv";
 
 type StatusFilter = "all" | "online" | "offline";
 type ViewMode = "cards" | "list";
 type SortKey = "name" | "state" | "version" | "source" | "disk" | "memory" | "cpu";
 type SortDirection = "asc" | "desc";
+type DashboardInstance =
+  | { type: "wsl"; name: string; distro: Distribution }
+  | { type: "hyperv"; name: string; vm: HyperVVm };
+type HyperVInstance = Extract<DashboardInstance, { type: "hyperv" }>;
 
 const VIEW_MODE_STORAGE_KEY = "wslui-dashboard-view-mode";
 
@@ -22,12 +28,12 @@ function getInitialViewMode(): ViewMode {
 }
 
 function DistroTable({
-  distributions,
+  instances,
   sortKey,
   sortDirection,
   onSortChange,
 }: {
-  distributions: Distribution[];
+  instances: DashboardInstance[];
   sortKey: SortKey;
   sortDirection: SortDirection;
   onSortChange: (key: SortKey) => void;
@@ -82,67 +88,90 @@ function DistroTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-theme-border-primary/70">
-            {distributions.map((distro) => {
-              const resources = distro.state === "Running" ? getDistroResources(distro.name) : undefined;
-              const source = distro.metadata?.installSource || "unknown";
-              const sourceColor = INSTALL_SOURCE_COLORS[source];
-              const keepAliveEnabled = isKeepAliveEnabled(distro.name);
+            {instances.map((instance) => {
+              const isWsl = instance.type === "wsl";
+              const distro = isWsl ? instance.distro : null;
+              const vm = instance.type === "hyperv" ? instance.vm : null;
+              const running = isWsl ? distro!.state === "Running" : isHyperVRunning(vm!.state);
+              const resources = isWsl && running ? getDistroResources(distro!.name) : undefined;
+              const source = distro?.metadata?.installSource || "unknown";
+              const sourceColor = isWsl ? INSTALL_SOURCE_COLORS[source] : "#38bdf8";
+              const sourceName = isWsl ? INSTALL_SOURCE_NAMES[source] : "Hyper-V";
+              const keepAliveEnabled = isWsl ? isKeepAliveEnabled(distro!.name) : false;
+              const rowKey = `${instance.type}:${instance.name}`;
 
               return (
-                <tr key={distro.name} className="hover:bg-theme-bg-hover/50 transition-colors">
+                <tr key={rowKey} className="hover:bg-theme-bg-hover/50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                        distro.state === "Running"
+                        running
                           ? "bg-theme-status-running shadow-[0_0_8px_rgba(var(--status-running-rgb),0.8)]"
                           : "bg-theme-status-stopped"
                       }`} />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="font-semibold text-sm text-theme-text-primary truncate">{distro.name}</span>
-                          {distro.isDefault && (
+                          <span className="font-semibold text-sm text-theme-text-primary truncate">{instance.name}</span>
+                          <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-mono uppercase ${
+                            isWsl
+                              ? "bg-[rgba(var(--accent-primary-rgb),0.08)] text-theme-accent-primary border-[rgba(var(--accent-primary-rgb),0.25)]"
+                              : "bg-sky-500/10 text-sky-400 border-sky-500/30"
+                          }`}>
+                            {isWsl ? "WSL" : "Hyper-V"}
+                          </span>
+                          {distro?.isDefault && (
                             <span className="shrink-0 text-[10px] px-1.5 py-0.5 bg-[rgba(var(--accent-primary-rgb),0.1)] text-theme-accent-primary rounded border border-[rgba(var(--accent-primary-rgb),0.3)] font-mono uppercase">
                               {t('common:status.primary')}
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-theme-text-muted truncate">{distro.osInfo || `WSL ${distro.version}`}</div>
+                        <div className="text-xs text-theme-text-muted truncate">
+                          {isWsl ? (distro!.osInfo || `WSL ${distro!.version}`) : (vm!.status || vm!.state)}
+                        </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-3 py-3">
                     <span className={`text-xs font-mono ${
-                      distro.state === "Running" ? "text-theme-status-running" : "text-theme-text-muted"
+                      running ? "text-theme-status-running" : "text-theme-text-muted"
                     }`}>
-                      {distro.state === "Running" ? t('common:status.online') : t('common:status.offline')}
+                      {isWsl ? (running ? t('common:status.online') : t('common:status.offline')) : vm!.state}
                     </span>
                   </td>
                   <td className="px-3 py-3">
-                    <span className="text-xs font-mono text-blue-400">v{distro.version}</span>
+                    <span className="text-xs font-mono text-blue-400">{isWsl ? `v${distro!.version}` : "—"}</span>
                   </td>
                   <td className="px-3 py-3">
-                    <div className="flex items-center gap-2" title={INSTALL_SOURCE_NAMES[source]}>
-                      <SourceIcon source={source} className="!w-4 !h-4" />
+                    <div className="flex items-center gap-2" title={sourceName}>
+                      {isWsl && <SourceIcon source={source} className="!w-4 !h-4" />}
                       <span className="text-xs text-theme-text-secondary" style={{ color: sourceColor }}>
-                        {INSTALL_SOURCE_NAMES[source]}
+                        {sourceName}
                       </span>
                     </div>
                   </td>
                   <td className="px-3 py-3 text-right data-value text-xs text-theme-text-secondary">
-                    {distro.diskSize && distro.diskSize > 0 ? formatBytes(distro.diskSize) : "—"}
+                    {distro?.diskSize && distro.diskSize > 0 ? formatBytes(distro.diskSize) : "—"}
                   </td>
                   <td className="px-3 py-3 text-right data-value text-xs text-theme-accent-primary">
-                    {resources ? formatBytes(resources.memoryUsedBytes) : "—"}
+                    {isWsl
+                      ? (resources ? formatBytes(resources.memoryUsedBytes) : "—")
+                      : (vm!.memoryAssignedBytes ? formatBytes(vm!.memoryAssignedBytes) : "—")}
                   </td>
                   <td className="px-3 py-3 text-right data-value text-xs text-theme-status-warning">
-                    {resources?.cpuPercent != null ? `${resources.cpuPercent.toFixed(1)}%` : "—"}
+                    {isWsl
+                      ? (resources?.cpuPercent != null ? `${resources.cpuPercent.toFixed(1)}%` : "—")
+                      : (vm!.cpuUsagePercent != null ? `${vm!.cpuUsagePercent.toFixed(1)}%` : "—")}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-center" title={keepAliveEnabled ? t('card.keepAlive') : t('card.keepAliveTooltip')}>
-                      <RunningPersonIcon
-                        size="sm"
-                        className={keepAliveEnabled ? "text-theme-accent-primary" : "text-theme-text-muted/50"}
-                      />
+                      {isWsl ? (
+                        <RunningPersonIcon
+                          size="sm"
+                          className={keepAliveEnabled ? "text-theme-accent-primary" : "text-theme-text-muted/50"}
+                        />
+                      ) : (
+                        <span className="text-theme-text-muted/40">—</span>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -155,11 +184,138 @@ function DistroTable({
   );
 }
 
+function isHyperVRunning(state: string): boolean {
+  return state.toLowerCase() === "running";
+}
+
+function isHyperVPaused(state: string): boolean {
+  const normalized = state.toLowerCase();
+  return normalized === "paused" || normalized === "saved";
+}
+
+function formatDuration(seconds?: number | null): string {
+  if (!seconds || seconds <= 0) return "—";
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
+function HyperVCard({ vm }: { vm: HyperVVm }) {
+  const { startVm, stopVm, pauseVm, resumeVm, actionInProgress } = useHyperVStore();
+  const running = isHyperVRunning(vm.state);
+  const paused = isHyperVPaused(vm.state);
+  const disabled = !!actionInProgress;
+  const ipAddress = vm.ipAddresses.find((ip) => ip && !ip.includes(":"));
+
+  return (
+    <div className="module-card p-4 animate-fade-slide-in">
+      <div className="flex items-center justify-between mb-3">
+        <span className="btn-cyber text-[10px] font-mono font-semibold px-2 py-1 rounded uppercase tracking-wider leading-none bg-sky-500/10 text-sky-400 border border-sky-500/40">
+          Hyper-V
+        </span>
+        <span className={`text-[10px] font-mono font-semibold px-3 py-1 rounded uppercase tracking-wider ${
+          running
+            ? "bg-[rgba(var(--status-running-rgb),0.1)] text-theme-status-running border border-[rgba(var(--status-running-rgb),0.3)]"
+            : "bg-theme-bg-tertiary text-theme-text-muted border border-theme-border-secondary"
+        }`}>
+          {vm.state}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`status-indicator ${running ? "running" : ""}`}>
+          <div className={`w-3 h-3 rounded-full transition-all ${
+            running
+              ? "bg-theme-status-running shadow-lg shadow-[rgba(var(--status-running-rgb),0.5)]"
+              : "bg-theme-status-stopped"
+          }`} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold text-theme-text-primary text-lg break-words">{vm.name}</h3>
+          <p className="text-xs font-mono text-theme-text-muted mt-0.5 truncate">
+            {ipAddress ? `IP ${ipAddress}` : (vm.status || "Virtual machine")}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 mb-4 p-2.5 bg-theme-bg-primary/50 rounded-lg border border-theme-border-primary">
+        <div className="text-center">
+          <span className="data-label block mb-1">CPU</span>
+          <span className="data-value text-sm text-theme-status-warning">
+            {vm.cpuUsagePercent != null ? `${vm.cpuUsagePercent.toFixed(1)}%` : "—"}
+          </span>
+        </div>
+        <div className="text-center border-x border-theme-border-primary">
+          <span className="data-label block mb-1">Memory</span>
+          <span className="data-value text-sm text-theme-accent-primary">
+            {vm.memoryAssignedBytes ? formatBytes(vm.memoryAssignedBytes) : "—"}
+          </span>
+        </div>
+        <div className="text-center">
+          <span className="data-label block mb-1">Uptime</span>
+          <span className="data-value text-sm text-theme-text-secondary">
+            {formatDuration(vm.uptimeSeconds)}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {running ? (
+          <>
+            <button
+              onClick={() => stopVm(vm.name)}
+              disabled={disabled}
+              className="btn-cyber px-2.5 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[rgba(var(--status-warning-rgb),0.1)] text-theme-status-warning border border-[rgba(var(--status-warning-rgb),0.3)] hover:bg-[rgba(var(--status-warning-rgb),0.2)]"
+            >
+              <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <StopIcon size="sm" />
+                Stop
+              </span>
+            </button>
+            <button
+              onClick={() => pauseVm(vm.name)}
+              disabled={disabled}
+              className="btn-cyber p-2 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-tertiary hover:bg-theme-bg-hover text-theme-text-secondary hover:text-theme-text-primary border-theme-border-secondary"
+              title="Pause"
+            >
+              <PauseIcon size="sm" />
+            </button>
+          </>
+        ) : paused ? (
+          <button
+            onClick={() => resumeVm(vm.name)}
+            disabled={disabled}
+            className="btn-cyber px-2.5 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[rgba(var(--status-running-rgb),0.1)] text-theme-status-running border border-[rgba(var(--status-running-rgb),0.3)] hover:bg-[rgba(var(--status-running-rgb),0.2)]"
+          >
+            <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
+              <PlayIcon size="sm" />
+              Resume
+            </span>
+          </button>
+        ) : (
+          <button
+            onClick={() => startVm(vm.name)}
+            disabled={disabled}
+            className="btn-cyber px-2.5 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[rgba(var(--status-running-rgb),0.1)] text-theme-status-running border border-[rgba(var(--status-running-rgb),0.3)] hover:bg-[rgba(var(--status-running-rgb),0.2)]"
+          >
+            <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
+              <PlayIcon size="sm" />
+              Start
+            </span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function DistroList() {
   const { t } = useTranslation("dashboard");
   const { t: tHeader } = useTranslation("header");
   const { distributions, isLoading } = useDistroStore();
   const { getDistroResources } = useResourceStore();
+  const { vms: hypervVms, error: hypervError, fetchVms } = useHyperVStore();
   const {
     settings: keepAliveSettings,
     isSaving: isKeepAliveSaving,
@@ -180,6 +336,12 @@ export function DistroList() {
   useEffect(() => {
     wslService.getWslIp().then(setWslIp).catch(() => setWslIp(null));
   }, []);
+
+  useEffect(() => {
+    fetchVms(true);
+    const timer = window.setInterval(() => fetchVms(true), 10000);
+    return () => window.clearInterval(timer);
+  }, [fetchVms]);
 
   const copyIpToClipboard = useCallback(() => {
     if (wslIp) {
@@ -268,6 +430,10 @@ export function DistroList() {
     return true;
   });
 
+  const filteredHyperVInstances: HyperVInstance[] = sourceFilter === "all"
+    ? hypervVms.map((vm) => ({ type: "hyperv", name: vm.name, vm }))
+    : [];
+
   // Card mode keeps the original behavior: primary first, then alphabetically by name.
   const cardDistributions = [...filteredDistributions].sort((a, b) => {
     if (a.isDefault && !b.isDefault) return -1;
@@ -275,21 +441,25 @@ export function DistroList() {
     return a.name.localeCompare(b.name);
   });
 
-  const sortedDistributions = [...filteredDistributions].sort((a, b) => {
-    const sourceA = a.metadata?.installSource || "unknown";
-    const sourceB = b.metadata?.installSource || "unknown";
-    const resourcesA = getDistroResources(a.name);
-    const resourcesB = getDistroResources(b.name);
-    const valueByKey = (distro: Distribution, key: SortKey) => {
-      const resources = distro.name === a.name ? resourcesA : resourcesB;
+  const listInstances: DashboardInstance[] = [
+    ...filteredDistributions.map((distro) => ({ type: "wsl" as const, name: distro.name, distro })),
+    ...filteredHyperVInstances,
+  ];
+
+  const sortedInstances = [...listInstances].sort((a, b) => {
+    const valueByKey = (instance: DashboardInstance, key: SortKey) => {
+      const isWsl = instance.type === "wsl";
+      const distro = isWsl ? instance.distro : null;
+      const vm = instance.type === "hyperv" ? instance.vm : null;
+      const resources = isWsl ? getDistroResources(distro!.name) : null;
       switch (key) {
-        case "name": return distro.name.toLocaleLowerCase();
-        case "state": return distro.state === "Running" ? 0 : 1;
-        case "version": return distro.version;
-        case "source": return distro === a ? sourceA : sourceB;
-        case "disk": return distro.diskSize ?? null;
-        case "memory": return resources?.memoryUsedBytes ?? null;
-        case "cpu": return resources?.cpuPercent ?? null;
+        case "name": return instance.name.toLocaleLowerCase();
+        case "state": return isWsl ? (distro!.state === "Running" ? 0 : 1) : (isHyperVRunning(vm!.state) ? 0 : 1);
+        case "version": return isWsl ? distro!.version : null;
+        case "source": return isWsl ? (distro!.metadata?.installSource || "unknown") : "hyperv";
+        case "disk": return isWsl ? (distro!.diskSize ?? null) : null;
+        case "memory": return isWsl ? (resources?.memoryUsedBytes ?? null) : (vm!.memoryAssignedBytes ?? null);
+        case "cpu": return isWsl ? (resources?.cpuPercent ?? null) : (vm!.cpuUsagePercent ?? null);
       }
     };
 
@@ -564,8 +734,14 @@ export function DistroList() {
         </div>
       </div>
 
+      {sourceFilter === "all" && hypervError && (
+        <div className="mb-4 rounded-lg border border-theme-status-error/30 bg-theme-status-error/10 px-4 py-3 text-xs font-mono text-theme-status-error">
+          Hyper-V: {hypervError}
+        </div>
+      )}
+
       {/* Distribution Grid */}
-      {sortedDistributions.length === 0 ? (
+      {listInstances.length === 0 ? (
         <div className="flex items-center justify-center h-40" data-testid="empty-filter-state">
           <div className="text-center">
             <p className="text-theme-text-muted text-sm" data-testid="empty-filter-message">
@@ -588,12 +764,15 @@ export function DistroList() {
         viewMode === "cards" ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3" data-testid="distro-card-view">
             {cardDistributions.map((distro, index) => (
-              <DistroCard key={distro.name} distro={distro} index={index} />
+              <DistroCard key={`wsl:${distro.name}`} distro={distro} index={index} />
+            ))}
+            {filteredHyperVInstances.map((instance) => (
+              <HyperVCard key={`hyperv:${instance.name}`} vm={instance.vm} />
             ))}
           </div>
         ) : (
           <DistroTable
-            distributions={sortedDistributions}
+            instances={sortedInstances}
             sortKey={sortKey}
             sortDirection={sortDirection}
             onSortChange={handleSortChange}
