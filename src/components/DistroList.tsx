@@ -13,7 +13,7 @@ import type { HyperVVm } from "../types/hyperv";
 
 type StatusFilter = "all" | "online" | "offline";
 type ViewMode = "cards" | "list";
-type SortKey = "name" | "state" | "version" | "source" | "disk" | "memory" | "cpu";
+type SortKey = "name" | "state" | "version" | "disk" | "memory" | "cpu";
 type SortDirection = "asc" | "desc";
 type DashboardInstance =
   | { type: "wsl"; name: string; distro: Distribution }
@@ -80,7 +80,6 @@ function DistroTable({
               <th className="px-4 py-3 font-medium"><SortHeader id="name">{t('list.name')}</SortHeader></th>
               <th className="px-3 py-3 font-medium"><SortHeader id="state">{t('list.state')}</SortHeader></th>
               <th className="px-3 py-3 font-medium"><SortHeader id="version">{t('list.version')}</SortHeader></th>
-              <th className="px-3 py-3 font-medium"><SortHeader id="source">{t('list.source')}</SortHeader></th>
               <th className="px-3 py-3 font-medium text-right"><SortHeader id="disk" align="right">{t('common:label.disk')}</SortHeader></th>
               <th className="px-3 py-3 font-medium text-right"><SortHeader id="memory" align="right">{t('common:label.memory')}</SortHeader></th>
               <th className="px-3 py-3 font-medium text-right"><SortHeader id="cpu" align="right">{t('common:label.cpu')}</SortHeader></th>
@@ -94,9 +93,6 @@ function DistroTable({
               const vm = instance.type === "hyperv" ? instance.vm : null;
               const running = isWsl ? distro!.state === "Running" : isHyperVRunning(vm!.state);
               const resources = isWsl && running ? getDistroResources(distro!.name) : undefined;
-              const source = distro?.metadata?.installSource || "unknown";
-              const sourceColor = isWsl ? INSTALL_SOURCE_COLORS[source] : "#38bdf8";
-              const sourceName = isWsl ? INSTALL_SOURCE_NAMES[source] : "Hyper-V";
               const keepAliveEnabled = isWsl ? isKeepAliveEnabled(distro!.name) : false;
               const rowKey = `${instance.type}:${instance.name}`;
 
@@ -140,14 +136,6 @@ function DistroTable({
                   </td>
                   <td className="px-3 py-3">
                     <span className="text-xs font-mono text-blue-400">{isWsl ? `v${distro!.version}` : "—"}</span>
-                  </td>
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-2" title={sourceName}>
-                      {isWsl && <SourceIcon source={source} className="!w-4 !h-4" />}
-                      <span className="text-xs text-theme-text-secondary" style={{ color: sourceColor }}>
-                        {sourceName}
-                      </span>
-                    </div>
                   </td>
                   <td className="px-3 py-3 text-right data-value text-xs text-theme-text-secondary">
                     {distro?.diskSize && distro.diskSize > 0 ? formatBytes(distro.diskSize) : "—"}
@@ -456,7 +444,6 @@ export function DistroList() {
         case "name": return instance.name.toLocaleLowerCase();
         case "state": return isWsl ? (distro!.state === "Running" ? 0 : 1) : (isHyperVRunning(vm!.state) ? 0 : 1);
         case "version": return isWsl ? distro!.version : null;
-        case "source": return isWsl ? (distro!.metadata?.installSource || "unknown") : "hyperv";
         case "disk": return isWsl ? (distro!.diskSize ?? null) : null;
         case "memory": return isWsl ? (resources?.memoryUsedBytes ?? null) : (vm!.memoryAssignedBytes ?? null);
         case "cpu": return isWsl ? (resources?.cpuPercent ?? null) : (vm!.cpuUsagePercent ?? null);
@@ -524,7 +511,7 @@ export function DistroList() {
     }
 
     setSortKey(nextKey);
-    setSortDirection(nextKey === "name" || nextKey === "state" || nextKey === "source" ? "asc" : "desc");
+    setSortDirection(nextKey === "name" || nextKey === "state" ? "asc" : "desc");
   };
 
   return (
