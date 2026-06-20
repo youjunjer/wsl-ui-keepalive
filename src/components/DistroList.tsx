@@ -12,6 +12,7 @@ import { formatBytes, INSTALL_SOURCE_COLORS, INSTALL_SOURCE_NAMES } from "../typ
 import type { HyperVVm } from "../types/hyperv";
 
 type StatusFilter = "all" | "online" | "offline";
+type TypeFilter = "all" | "wsl" | "hyperv";
 type ViewMode = "cards" | "list";
 type SortKey = "name" | "type" | "state" | "version" | "disk" | "memory" | "cpu";
 type SortDirection = "asc" | "desc";
@@ -63,8 +64,8 @@ function DistroTable({
       >
         <span>{children}</span>
         {active && (
-          <span className="text-[9px] font-mono uppercase">
-            {sortDirection}
+          <span className="text-[10px] font-mono leading-none">
+            {sortDirection === "asc" ? "▲" : "▼"}
           </span>
         )}
       </button>
@@ -213,9 +214,11 @@ function HyperVCard({ vm }: { vm: HyperVVm }) {
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-theme-text-primary text-lg break-words">{vm.name}</h3>
-          <p className="text-xs font-mono text-theme-text-muted mt-0.5 truncate">
-            {ipAddress ? `IP ${ipAddress}` : (vm.status || "Virtual machine")}
-          </p>
+          {ipAddress && (
+            <p className="text-xs font-mono text-theme-text-muted mt-0.5 truncate">
+              IP {ipAddress}
+            </p>
+          )}
         </div>
       </div>
 
@@ -280,6 +283,7 @@ export function DistroList() {
     setEnabledDistros,
   } = useKeepAliveStore();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<InstallSource | "all">("all");
   // WSL version toggles - both enabled by default (show all)
   const [wsl1Enabled, setWsl1Enabled] = useState(true);
@@ -371,6 +375,8 @@ export function DistroList() {
 
   // Filter distributions
   const filteredDistributions = distributions.filter((distro) => {
+    if (typeFilter === "hyperv") return false;
+
     // Status filter
     if (statusFilter === "online" && distro.state !== "Running") return false;
     if (statusFilter === "offline" && distro.state === "Running") return false;
@@ -388,7 +394,7 @@ export function DistroList() {
     return true;
   });
 
-  const filteredHyperVInstances: HyperVInstance[] = sourceFilter === "all"
+  const filteredHyperVInstances: HyperVInstance[] = typeFilter !== "wsl"
     ? hypervVms
         .filter((vm) => {
           const running = isHyperVRunning(vm.state);
@@ -454,6 +460,8 @@ export function DistroList() {
   const hasWsl2 = distributions.some(d => d.version === 2);
   const wsl1Count = distributions.filter(d => d.version === 1).length;
   const wsl2Count = distributions.filter(d => d.version === 2).length;
+  const wslCount = distributions.length;
+  const hypervCount = hypervVms.length;
   const distroNames = distributions.map((d) => d.name);
   const keepAliveEnabledCount = distroNames.filter((name) => keepAliveSettings.enabledDistros.includes(name)).length;
   const allKeepAliveChecked = distroNames.length > 0 && keepAliveEnabledCount === distroNames.length;
@@ -464,10 +472,11 @@ export function DistroList() {
   const offlineCount = distributions.filter(d => d.state !== "Running").length + hypervVms.filter(vm => !isHyperVRunning(vm.state)).length;
 
   // Check if any filters are active
-  const hasActiveFilters = statusFilter !== "all" || sourceFilter !== "all" || !wsl1Enabled || !wsl2Enabled;
+  const hasActiveFilters = statusFilter !== "all" || typeFilter !== "all" || sourceFilter !== "all" || !wsl1Enabled || !wsl2Enabled;
 
   const clearFilters = () => {
     setStatusFilter("all");
+    setTypeFilter("all");
     setSourceFilter("all");
     setWsl1Enabled(true);
     setWsl2Enabled(true);
@@ -553,6 +562,51 @@ export function DistroList() {
             >
               <span className="w-2 h-2 rounded-full bg-theme-status-stopped" />
               <span className="text-[10px]" data-testid="offline-count">{offlineCount}</span>
+            </button>
+          </div>
+
+          {/* Divider - hidden on very small screens */}
+          <div className="hidden sm:block w-px h-6 bg-theme-border-secondary" />
+
+          {/* Type Filters */}
+          <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="type-filter-group">
+            <button
+              onClick={() => setTypeFilter("all")}
+              data-testid="type-filter-all"
+              className={`px-2 sm:px-3 py-1.5 text-xs font-medium rounded-md transition-all border ${
+                typeFilter === "all"
+                  ? "bg-theme-accent-primary/20 text-theme-accent-primary border-theme-accent-primary/30"
+                  : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
+              }`}
+              title={`全部 (${wslCount + hypervCount})`}
+            >
+              全部
+            </button>
+            <button
+              onClick={() => setTypeFilter("wsl")}
+              data-testid="type-filter-wsl"
+              className={`px-2 py-1.5 text-xs font-medium rounded-md transition-all border flex items-center gap-1 ${
+                typeFilter === "wsl"
+                  ? "bg-[rgba(var(--accent-primary-rgb),0.18)] text-theme-accent-primary border-[rgba(var(--accent-primary-rgb),0.35)]"
+                  : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
+              }`}
+              title={`WSL (${wslCount})`}
+            >
+              WSL
+              <span className="text-[10px] opacity-70">{wslCount}</span>
+            </button>
+            <button
+              onClick={() => setTypeFilter("hyperv")}
+              data-testid="type-filter-hyperv"
+              className={`px-2 py-1.5 text-xs font-medium rounded-md transition-all border flex items-center gap-1 ${
+                typeFilter === "hyperv"
+                  ? "bg-sky-500/20 text-sky-400 border-sky-500/35"
+                  : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
+              }`}
+              title={`Hyper-V (${hypervCount})`}
+            >
+              Hyper-V
+              <span className="text-[10px] opacity-70">{hypervCount}</span>
             </button>
           </div>
 
@@ -710,7 +764,7 @@ export function DistroList() {
         <div className="flex items-center justify-center h-40" data-testid="empty-filter-state">
           <div className="text-center">
             <p className="text-theme-text-muted text-sm" data-testid="empty-filter-message">
-              {distributions.length === 0
+              {distributions.length === 0 && hypervVms.length === 0
                 ? t('emptyFilter.noDistros')
                 : t('emptyFilter.noMatch')}
             </p>
