@@ -14,6 +14,7 @@ interface HyperVStore {
   stopVm: (name: string) => Promise<void>;
   pauseVm: (name: string) => Promise<void>;
   resumeVm: (name: string) => Promise<void>;
+  openRdp: (name: string) => Promise<void>;
 }
 
 export const useHyperVStore = create<HyperVStore>((set, get) => ({
@@ -72,9 +73,12 @@ export const useHyperVStore = create<HyperVStore>((set, get) => ({
       set({ actionInProgress: null });
     }
   },
+
+  openRdp: async (name: string) => {
+    await hypervService.openRdp(name);
+  },
 }));
 
 if (typeof window !== "undefined") {
   (window as unknown as { __hypervStore: typeof useHyperVStore }).__hypervStore = useHyperVStore;
 }
-

@@ -103,6 +103,13 @@ pub async fn resume_hyperv_vm(name: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub async fn open_hyperv_rdp(name: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || crate::hyperv::open_rdp(&name))
+        .await
+        .map_err(|e| format!("Task failed: {}", e))?
+}
+
+#[tauri::command]
 pub fn refresh_tray_menu(app: AppHandle) -> Result<(), String> {
     let tray_state: tauri::State<TrayState> = app.state();
     let tray_guard = tray_state

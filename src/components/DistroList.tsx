@@ -6,14 +6,14 @@ import { useResourceStore } from "../store/resourceStore";
 import { useHyperVStore } from "../store/hypervStore";
 import { DistroCard } from "./DistroCard";
 import { wslService } from "../services/wslService";
-import { CopyIcon, GridIcon, MenuIcon, PauseIcon, PlayIcon, RunningPersonIcon, SourceIcon, StopIcon } from "./icons";
+import { CopyIcon, GridIcon, MenuIcon, MonitorIcon, PlayIcon, RunningPersonIcon, SourceIcon, StopIcon } from "./icons";
 import type { Distribution, InstallSource } from "../types/distribution";
 import { formatBytes, INSTALL_SOURCE_COLORS, INSTALL_SOURCE_NAMES } from "../types/distribution";
 import type { HyperVVm } from "../types/hyperv";
 
 type StatusFilter = "all" | "online" | "offline";
 type ViewMode = "cards" | "list";
-type SortKey = "name" | "state" | "version" | "disk" | "memory" | "cpu";
+type SortKey = "name" | "type" | "state" | "version" | "disk" | "memory" | "cpu";
 type SortDirection = "asc" | "desc";
 type DashboardInstance =
   | { type: "wsl"; name: string; distro: Distribution }
@@ -74,10 +74,11 @@ function DistroTable({
   return (
     <div className="overflow-hidden rounded-lg border border-theme-border-primary bg-theme-bg-secondary/40" data-testid="distro-list-view">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left">
+        <table className="w-full min-w-[820px] text-left">
           <thead className="bg-theme-bg-primary/70 border-b border-theme-border-primary">
             <tr className="text-[10px] font-mono uppercase tracking-wider text-theme-text-muted">
               <th className="px-4 py-3 font-medium"><SortHeader id="name">{t('list.name')}</SortHeader></th>
+              <th className="px-3 py-3 font-medium"><SortHeader id="type">類型</SortHeader></th>
               <th className="px-3 py-3 font-medium"><SortHeader id="state">{t('list.state')}</SortHeader></th>
               <th className="px-3 py-3 font-medium"><SortHeader id="version">{t('list.version')}</SortHeader></th>
               <th className="px-3 py-3 font-medium text-right"><SortHeader id="disk" align="right">{t('common:label.disk')}</SortHeader></th>
@@ -108,13 +109,6 @@ function DistroTable({
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="font-semibold text-sm text-theme-text-primary truncate">{instance.name}</span>
-                          <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-mono uppercase ${
-                            isWsl
-                              ? "bg-[rgba(var(--accent-primary-rgb),0.08)] text-theme-accent-primary border-[rgba(var(--accent-primary-rgb),0.25)]"
-                              : "bg-sky-500/10 text-sky-400 border-sky-500/30"
-                          }`}>
-                            {isWsl ? "WSL" : "Hyper-V"}
-                          </span>
                           {distro?.isDefault && (
                             <span className="shrink-0 text-[10px] px-1.5 py-0.5 bg-[rgba(var(--accent-primary-rgb),0.1)] text-theme-accent-primary rounded border border-[rgba(var(--accent-primary-rgb),0.3)] font-mono uppercase">
                               {t('common:status.primary')}
@@ -128,17 +122,28 @@ function DistroTable({
                     </div>
                   </td>
                   <td className="px-3 py-3">
+                    <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-mono uppercase ${
+                      isWsl
+                        ? "bg-[rgba(var(--accent-primary-rgb),0.08)] text-theme-accent-primary border-[rgba(var(--accent-primary-rgb),0.25)]"
+                        : "bg-sky-500/10 text-sky-400 border-sky-500/30"
+                    }`}>
+                      {isWsl ? "WSL" : "Hyper-V"}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3">
                     <span className={`text-xs font-mono ${
                       running ? "text-theme-status-running" : "text-theme-text-muted"
                     }`}>
-                      {isWsl ? (running ? t('common:status.online') : t('common:status.offline')) : vm!.state}
+                      {running ? "執行" : "關閉"}
                     </span>
                   </td>
                   <td className="px-3 py-3">
                     <span className="text-xs font-mono text-blue-400">{isWsl ? `v${distro!.version}` : "—"}</span>
                   </td>
                   <td className="px-3 py-3 text-right data-value text-xs text-theme-text-secondary">
-                    {distro?.diskSize && distro.diskSize > 0 ? formatBytes(distro.diskSize) : "—"}
+                    {isWsl
+                      ? (distro?.diskSize && distro.diskSize > 0 ? formatBytes(distro.diskSize) : "—")
+                      : (vm!.diskSizeBytes ? formatBytes(vm!.diskSizeBytes) : "—")}
                   </td>
                   <td className="px-3 py-3 text-right data-value text-xs text-theme-accent-primary">
                     {isWsl
@@ -176,23 +181,10 @@ function isHyperVRunning(state: string): boolean {
   return state.toLowerCase() === "running";
 }
 
-function isHyperVPaused(state: string): boolean {
-  const normalized = state.toLowerCase();
-  return normalized === "paused" || normalized === "saved";
-}
-
-function formatDuration(seconds?: number | null): string {
-  if (!seconds || seconds <= 0) return "—";
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
-}
-
 function HyperVCard({ vm }: { vm: HyperVVm }) {
-  const { startVm, stopVm, pauseVm, resumeVm, actionInProgress } = useHyperVStore();
+  const { t } = useTranslation("dashboard");
+  const { startVm, stopVm, openRdp, actionInProgress } = useHyperVStore();
   const running = isHyperVRunning(vm.state);
-  const paused = isHyperVPaused(vm.state);
   const disabled = !!actionInProgress;
   const ipAddress = vm.ipAddresses.find((ip) => ip && !ip.includes(":"));
 
@@ -207,7 +199,7 @@ function HyperVCard({ vm }: { vm: HyperVVm }) {
             ? "bg-[rgba(var(--status-running-rgb),0.1)] text-theme-status-running border border-[rgba(var(--status-running-rgb),0.3)]"
             : "bg-theme-bg-tertiary text-theme-text-muted border border-theme-border-secondary"
         }`}>
-          {vm.state}
+          {running ? "執行" : "關閉"}
         </span>
       </div>
 
@@ -229,70 +221,48 @@ function HyperVCard({ vm }: { vm: HyperVVm }) {
 
       <div className="grid grid-cols-3 gap-4 mb-4 p-2.5 bg-theme-bg-primary/50 rounded-lg border border-theme-border-primary">
         <div className="text-center">
-          <span className="data-label block mb-1">CPU</span>
-          <span className="data-value text-sm text-theme-status-warning">
-            {vm.cpuUsagePercent != null ? `${vm.cpuUsagePercent.toFixed(1)}%` : "—"}
+          <span className="data-label block mb-1">{t('common:label.disk')}</span>
+          <span className="data-value text-sm text-theme-text-secondary">
+            {vm.diskSizeBytes ? formatBytes(vm.diskSizeBytes) : "—"}
           </span>
         </div>
         <div className="text-center border-x border-theme-border-primary">
-          <span className="data-label block mb-1">Memory</span>
+          <span className="data-label block mb-1">{t('common:label.memory')}</span>
           <span className="data-value text-sm text-theme-accent-primary">
             {vm.memoryAssignedBytes ? formatBytes(vm.memoryAssignedBytes) : "—"}
           </span>
         </div>
         <div className="text-center">
-          <span className="data-label block mb-1">Uptime</span>
-          <span className="data-value text-sm text-theme-text-secondary">
-            {formatDuration(vm.uptimeSeconds)}
+          <span className="data-label block mb-1">{t('common:label.cpu')}</span>
+          <span className="data-value text-sm text-theme-status-warning">
+            {vm.cpuUsagePercent != null ? `${vm.cpuUsagePercent.toFixed(1)}%` : "—"}
           </span>
         </div>
       </div>
 
       <div className="flex items-center gap-1.5 flex-wrap">
-        {running ? (
-          <>
-            <button
-              onClick={() => stopVm(vm.name)}
-              disabled={disabled}
-              className="btn-cyber px-2.5 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[rgba(var(--status-warning-rgb),0.1)] text-theme-status-warning border border-[rgba(var(--status-warning-rgb),0.3)] hover:bg-[rgba(var(--status-warning-rgb),0.2)]"
-            >
-              <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
-                <StopIcon size="sm" />
-                Stop
-              </span>
-            </button>
-            <button
-              onClick={() => pauseVm(vm.name)}
-              disabled={disabled}
-              className="btn-cyber p-2 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-tertiary hover:bg-theme-bg-hover text-theme-text-secondary hover:text-theme-text-primary border-theme-border-secondary"
-              title="Pause"
-            >
-              <PauseIcon size="sm" />
-            </button>
-          </>
-        ) : paused ? (
-          <button
-            onClick={() => resumeVm(vm.name)}
-            disabled={disabled}
-            className="btn-cyber px-2.5 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[rgba(var(--status-running-rgb),0.1)] text-theme-status-running border border-[rgba(var(--status-running-rgb),0.3)] hover:bg-[rgba(var(--status-running-rgb),0.2)]"
-          >
-            <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
-              <PlayIcon size="sm" />
-              Resume
-            </span>
-          </button>
-        ) : (
-          <button
-            onClick={() => startVm(vm.name)}
-            disabled={disabled}
-            className="btn-cyber px-2.5 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-[rgba(var(--status-running-rgb),0.1)] text-theme-status-running border border-[rgba(var(--status-running-rgb),0.3)] hover:bg-[rgba(var(--status-running-rgb),0.2)]"
-          >
-            <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
-              <PlayIcon size="sm" />
-              Start
-            </span>
-          </button>
-        )}
+        <button
+          onClick={() => running ? stopVm(vm.name) : startVm(vm.name)}
+          disabled={disabled}
+          className={`btn-cyber px-2.5 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+            running
+              ? "bg-[rgba(var(--status-warning-rgb),0.1)] text-theme-status-warning border border-[rgba(var(--status-warning-rgb),0.3)] hover:bg-[rgba(var(--status-warning-rgb),0.2)]"
+              : "bg-[rgba(var(--status-running-rgb),0.1)] text-theme-status-running border border-[rgba(var(--status-running-rgb),0.3)] hover:bg-[rgba(var(--status-running-rgb),0.2)]"
+          }`}
+        >
+          <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
+            {running ? <StopIcon size="sm" /> : <PlayIcon size="sm" />}
+            {running ? "關閉" : "執行"}
+          </span>
+        </button>
+        <button
+          onClick={() => openRdp(vm.name)}
+          disabled={disabled || !running}
+          className="btn-cyber p-2 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-theme-bg-tertiary hover:bg-theme-bg-hover text-blue-500 hover:text-blue-400 border-theme-border-secondary"
+          title={t('card.openRdp')}
+        >
+          <MonitorIcon size="sm" />
+        </button>
       </div>
     </div>
   );
@@ -419,7 +389,14 @@ export function DistroList() {
   });
 
   const filteredHyperVInstances: HyperVInstance[] = sourceFilter === "all"
-    ? hypervVms.map((vm) => ({ type: "hyperv", name: vm.name, vm }))
+    ? hypervVms
+        .filter((vm) => {
+          const running = isHyperVRunning(vm.state);
+          if (statusFilter === "online") return running;
+          if (statusFilter === "offline") return !running;
+          return true;
+        })
+        .map((vm) => ({ type: "hyperv", name: vm.name, vm }))
     : [];
 
   // Card mode keeps the original behavior: primary first, then alphabetically by name.
@@ -442,9 +419,10 @@ export function DistroList() {
       const resources = isWsl ? getDistroResources(distro!.name) : null;
       switch (key) {
         case "name": return instance.name.toLocaleLowerCase();
+        case "type": return instance.type;
         case "state": return isWsl ? (distro!.state === "Running" ? 0 : 1) : (isHyperVRunning(vm!.state) ? 0 : 1);
         case "version": return isWsl ? distro!.version : null;
-        case "disk": return isWsl ? (distro!.diskSize ?? null) : null;
+        case "disk": return isWsl ? (distro!.diskSize ?? null) : (vm!.diskSizeBytes ?? null);
         case "memory": return isWsl ? (resources?.memoryUsedBytes ?? null) : (vm!.memoryAssignedBytes ?? null);
         case "cpu": return isWsl ? (resources?.cpuPercent ?? null) : (vm!.cpuUsagePercent ?? null);
       }
@@ -482,8 +460,8 @@ export function DistroList() {
   const isKeepAlivePartial = keepAliveEnabledCount > 0 && keepAliveEnabledCount < distroNames.length;
 
   // Count for filters
-  const onlineCount = distributions.filter(d => d.state === "Running").length;
-  const offlineCount = distributions.filter(d => d.state !== "Running").length;
+  const onlineCount = distributions.filter(d => d.state === "Running").length + hypervVms.filter(vm => isHyperVRunning(vm.state)).length;
+  const offlineCount = distributions.filter(d => d.state !== "Running").length + hypervVms.filter(vm => !isHyperVRunning(vm.state)).length;
 
   // Check if any filters are active
   const hasActiveFilters = statusFilter !== "all" || sourceFilter !== "all" || !wsl1Enabled || !wsl2Enabled;
@@ -511,7 +489,7 @@ export function DistroList() {
     }
 
     setSortKey(nextKey);
-    setSortDirection(nextKey === "name" || nextKey === "state" ? "asc" : "desc");
+    setSortDirection(nextKey === "name" || nextKey === "type" || nextKey === "state" ? "asc" : "desc");
   };
 
   return (

@@ -32,7 +32,7 @@ use commands::{
     open_terminal, open_system_terminal, run_action_in_terminal, quick_install_distribution, quit_app, refresh_tray_menu, rename_distribution, resize_distribution, compact_distribution,
     reset_distro_catalog, reset_download_distros, reset_container_images, reset_ms_store_distros, reset_mock_state_cmd, set_mock_error_cmd, clear_mock_errors_cmd, set_stubborn_shutdown_cmd, was_force_shutdown_used_cmd, set_mock_download_cmd, reset_mock_download_cmd, set_mock_update_result_cmd, get_installed_terminals, restart_distribution, save_settings,
     save_wsl_conf, save_wsl_config, set_default_distribution, set_distro_default_user, set_distro_version, set_keep_alive_distro, set_keep_alive_distros, set_sparse, shutdown_all, force_kill_wsl, start_distribution,
-    stop_distribution, force_stop_distribution, start_hyperv_vm, stop_hyperv_vm, pause_hyperv_vm, resume_hyperv_vm, update_container_image, update_custom_action, update_download_distro,
+    stop_distribution, force_stop_distribution, start_hyperv_vm, stop_hyperv_vm, pause_hyperv_vm, resume_hyperv_vm, open_hyperv_rdp, update_container_image, update_custom_action, update_download_distro,
     update_ms_store_distro, update_wsl, validate_install_path,
     // Disk Mount commands
     mount_disk, unmount_disk, list_mounted_disks, list_physical_disks,
@@ -459,6 +459,7 @@ fn main() {
             stop_hyperv_vm,
             pause_hyperv_vm,
             resume_hyperv_vm,
+            open_hyperv_rdp,
             delete_distribution,
             shutdown_all,
             force_kill_wsl,

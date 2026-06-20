@@ -27,5 +27,9 @@ export const hypervService = {
     info(`[hypervService] Resuming VM: ${name}`);
     await invoke("resume_hyperv_vm", { name });
   },
-};
 
+  async openRdp(name: string): Promise<void> {
+    info(`[hypervService] Opening Hyper-V RDP: ${name}`);
+    await invoke("open_hyperv_rdp", { name });
+  },
+};

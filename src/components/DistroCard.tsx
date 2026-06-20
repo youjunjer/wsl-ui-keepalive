@@ -121,7 +121,7 @@ function DistroCardComponent({ distro, index = 0 }: DistroCardProps) {
                     : "bg-theme-bg-tertiary text-theme-text-muted border border-theme-border-secondary"
                 }`}
               >
-                {isRunning ? t('common:status.online') : t('common:status.offline')}
+                {isRunning ? "執行" : "關閉"}
               </span>
             )}
           </div>
@@ -195,12 +195,12 @@ function DistroCardComponent({ distro, index = 0 }: DistroCardProps) {
             {isRunning ? (
               <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
                 <StopIcon size="sm" />
-                {t('card.suspend')}
+                關閉
               </span>
             ) : (
               <span className="flex items-center justify-center gap-1.5 whitespace-nowrap">
                 <PlayIcon size="sm" />
-                {t('card.launch')}
+                執行
               </span>
             )}
           </button>
