@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useDistroStore } from "../store/distroStore";
+import { useHyperVStore } from "../store/hypervStore";
 import { useResourceStore } from "../store/resourceStore";
 import { useSettingsStore } from "../store/settingsStore";
 import { useMountStore } from "../store/mountStore";
@@ -70,6 +71,7 @@ function StatusMetric({
 export function StatusBar() {
   const { t } = useTranslation("statusbar");
   const { distributions, actionInProgress, isLoading, setActionInProgress } = useDistroStore();
+  const { vms: hypervVms } = useHyperVStore();
   const { stats: resourceStats } = useResourceStore();
   const { settings } = useSettingsStore();
   const { mountedDisks, loadMountedDisks, openMountDialog } = useMountStore();
@@ -83,6 +85,9 @@ export function StatusBar() {
   const statusStartTimeRef = useRef<number | null>(null);
   const diskButtonRef = useRef<HTMLButtonElement>(null);
   const runningCount = distributions.filter((d) => d.state === "Running").length;
+  const runningVmCount = hypervVms.filter((vm) => vm.state.toLowerCase() === "running").length;
+  const combinedInstanceCount = distributions.length + hypervVms.length;
+  const combinedRunningCount = runningCount + runningVmCount;
   const defaultDistro = distributions.find((d) => d.isDefault);
   const mockMode = isMockMode();
   const isBackedOff = hasBackoff();
@@ -165,12 +170,27 @@ export function StatusBar() {
 
   // Calculate memory stats
   const memoryStats = resourceStats && resourceStats.perDistro.length > 0 ? (() => {
-    const totalMemory = resourceStats.perDistro.reduce((sum, d) => sum + d.memoryUsedBytes, 0);
+    const wslMemory = resourceStats.perDistro.reduce((sum, d) => sum + d.memoryUsedBytes, 0);
+    const hypervMemory = hypervVms.reduce((sum, vm) => (
+      vm.state.toLowerCase() === "running" && vm.memoryAssignedBytes
+        ? sum + vm.memoryAssignedBytes
+        : sum
+    ), 0);
+    const totalMemory = wslMemory + hypervMemory;
     const memoryLimit = resourceStats.global.memoryLimitBytes;
     return { totalMemory, memoryLimit };
-  })() : null;
+  })() : (() => {
+    const hypervMemory = hypervVms.reduce((sum, vm) => (
+      vm.state.toLowerCase() === "running" && vm.memoryAssignedBytes
+        ? sum + vm.memoryAssignedBytes
+        : sum
+    ), 0);
+    return hypervMemory > 0 ? { totalMemory: hypervMemory, memoryLimit: undefined } : null;
+  })();
   const totalDiskSize = distributions.reduce((sum, distro) => (
     distro.diskSize && distro.diskSize > 0 ? sum + distro.diskSize : sum
+  ), 0) + hypervVms.reduce((sum, vm) => (
+    vm.diskSizeBytes && vm.diskSizeBytes > 0 ? sum + vm.diskSizeBytes : sum
   ), 0);
   const networkStats = resourceStats && resourceStats.perDistro.length > 0 ? (() => {
     const totals = resourceStats.perDistro.reduce((sum, distro) => ({
@@ -304,22 +324,22 @@ export function StatusBar() {
 
             <StatusMetric
               icon={<ServerIcon size="sm" />}
-              value={distributions.length}
-              title={t('instances')}
+              value={combinedInstanceCount}
+              title={`${t('instances')}\nWSL ${distributions.length} / Hyper-V ${hypervVms.length}`}
             />
 
             <StatusMetric
               icon={<PlayIcon size="sm" />}
-              value={runningCount}
-              title={t('active')}
-              className={runningCount > 0 ? 'text-theme-status-running' : 'text-theme-text-muted'}
+              value={combinedRunningCount}
+              title={`${t('active')}\nWSL ${runningCount} / Hyper-V ${runningVmCount}`}
+              className={combinedRunningCount > 0 ? 'text-theme-status-running' : 'text-theme-text-muted'}
             />
 
             {memoryStats && memoryStats.totalMemory > 0 && (
               <StatusMetric
                 icon={<ChartBarIcon size="sm" />}
                 value={formatBytes(memoryStats.totalMemory)}
-                title={t('mem')}
+                title={`${t('mem')}\nWSL + Hyper-V`}
               />
             )}
 
@@ -327,7 +347,7 @@ export function StatusBar() {
               <StatusMetric
                 icon={<FolderIcon size="sm" />}
                 value={formatBytes(totalDiskSize)}
-                title={t('diskTotal')}
+                title={`${t('diskTotal')}\nWSL + Hyper-V`}
               />
             )}
 
@@ -375,7 +395,7 @@ export function StatusBar() {
                 {displayedStatus}
               </span>
             </div>
-          ) : runningCount > 0 ? (
+          ) : combinedRunningCount > 0 ? (
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 shrink-0 rounded-full bg-theme-status-running shadow-[0_0_8px_rgba(var(--status-running-rgb),1)] animate-pulse" />
               <span className="hidden xl:inline data-value text-xs text-theme-status-running">{t('common:status.operational')}</span>

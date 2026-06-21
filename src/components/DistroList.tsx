@@ -6,9 +6,9 @@ import { useResourceStore } from "../store/resourceStore";
 import { useHyperVStore } from "../store/hypervStore";
 import { DistroCard } from "./DistroCard";
 import { wslService } from "../services/wslService";
-import { CopyIcon, GridIcon, MenuIcon, MonitorIcon, PlayIcon, RunningPersonIcon, SourceIcon, StopIcon } from "./icons";
-import type { Distribution, InstallSource } from "../types/distribution";
-import { formatBytes, INSTALL_SOURCE_COLORS, INSTALL_SOURCE_NAMES } from "../types/distribution";
+import { CopyIcon, GridIcon, MenuIcon, MonitorIcon, PlayIcon, RunningPersonIcon, StopIcon } from "./icons";
+import type { Distribution } from "../types/distribution";
+import { formatBytes } from "../types/distribution";
 import type { HyperVVm } from "../types/hyperv";
 
 type StatusFilter = "all" | "online" | "offline";
@@ -40,7 +40,11 @@ function DistroTable({
   onSortChange: (key: SortKey) => void;
 }) {
   const { t } = useTranslation("dashboard");
-  const { isEnabled: isKeepAliveEnabled } = useKeepAliveStore();
+  const {
+    isEnabled: isKeepAliveEnabled,
+    setDistroEnabled,
+    isSaving: isKeepAliveSaving,
+  } = useKeepAliveStore();
   const { getDistroResources } = useResourceStore();
 
   const SortHeader = ({
@@ -162,10 +166,21 @@ function DistroTable({
                   <td className="px-4 py-3">
                     <div className="flex justify-center" title={keepAliveEnabled ? t('card.keepAlive') : t('card.keepAliveTooltip')}>
                       {isWsl ? (
-                        <RunningPersonIcon
-                          size="sm"
-                          className={keepAliveEnabled ? "text-theme-accent-primary" : "text-theme-text-muted/50"}
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setDistroEnabled(distro!.name, !keepAliveEnabled)}
+                          disabled={isKeepAliveSaving}
+                          data-testid="keep-alive-list-button"
+                          aria-label={t('card.keepAlive')}
+                          aria-pressed={keepAliveEnabled}
+                          className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                            keepAliveEnabled
+                              ? "bg-[rgba(var(--accent-primary-rgb),0.16)] text-theme-accent-primary border-[rgba(var(--accent-primary-rgb),0.42)] hover:bg-[rgba(var(--accent-primary-rgb),0.24)]"
+                              : "bg-theme-bg-tertiary hover:bg-theme-bg-hover text-theme-text-secondary hover:text-theme-text-primary border-theme-border-secondary"
+                          }`}
+                        >
+                          <RunningPersonIcon size="sm" className={keepAliveEnabled ? "text-theme-accent-primary" : ""} />
+                        </button>
                       ) : (
                         <span className="text-theme-text-muted/40">—</span>
                       )}
@@ -285,7 +300,6 @@ export function DistroList() {
   } = useKeepAliveStore();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-  const [sourceFilter, setSourceFilter] = useState<InstallSource | "all">("all");
   // WSL version toggles - both enabled by default (show all)
   const [wsl1Enabled, setWsl1Enabled] = useState(true);
   const [wsl2Enabled, setWsl2Enabled] = useState(true);
@@ -382,12 +396,6 @@ export function DistroList() {
     if (statusFilter === "online" && distro.state !== "Running") return false;
     if (statusFilter === "offline" && distro.state === "Running") return false;
 
-    // Source filter
-    if (sourceFilter !== "all") {
-      const source = distro.metadata?.installSource || "unknown";
-      if (source !== sourceFilter) return false;
-    }
-
     // WSL version toggle filter
     if (distro.version === 1 && !wsl1Enabled) return false;
     if (distro.version === 2 && !wsl2Enabled) return false;
@@ -450,12 +458,6 @@ export function DistroList() {
     return String(valueA).localeCompare(String(valueB)) * direction || a.name.localeCompare(b.name);
   });
 
-  // Get unique sources present in the distributions, in preferred display order
-  const sourceOrder: InstallSource[] = ["store", "lxc", "container", "download", "import", "clone", "unknown"];
-  const availableSources = sourceOrder.filter(source =>
-    distributions.some(d => (d.metadata?.installSource || "unknown") === source)
-  );
-
   // Check if we have WSL 1 or 2 distros
   const hasWsl1 = distributions.some(d => d.version === 1);
   const hasWsl2 = distributions.some(d => d.version === 2);
@@ -473,12 +475,11 @@ export function DistroList() {
   const offlineCount = distributions.filter(d => d.state !== "Running").length + hypervVms.filter(vm => !isHyperVRunning(vm.state)).length;
 
   // Check if any filters are active
-  const hasActiveFilters = statusFilter !== "all" || typeFilter !== "all" || sourceFilter !== "all" || !wsl1Enabled || !wsl2Enabled;
+  const hasActiveFilters = statusFilter !== "all" || typeFilter !== "all" || !wsl1Enabled || !wsl2Enabled;
 
   const clearFilters = () => {
     setStatusFilter("all");
     setTypeFilter("all");
-    setSourceFilter("all");
     setWsl1Enabled(true);
     setWsl2Enabled(true);
   };
@@ -593,50 +594,6 @@ export function DistroList() {
             </button>
               </div>
 
-              {/* Divider - hidden on very small screens */}
-              <div className="hidden sm:block w-px h-6 bg-theme-border-secondary" />
-
-              {/* Source Filters */}
-              <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="source-filter-group">
-            <button
-              onClick={() => setSourceFilter("all")}
-              data-testid="source-filter-all"
-              className={`px-2 sm:px-3 py-1.5 text-xs font-medium rounded-md transition-all border ${
-                sourceFilter === "all"
-                  ? "bg-theme-accent-primary/20 text-theme-accent-primary border-theme-accent-primary/30"
-                  : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
-              }`}
-              title={t('filter.allSources')}
-            >
-              <span className="hidden sm:inline">{t('filter.allSources')}</span>
-              <span className="sm:hidden">{t('filter.allSourcesMobile')}</span>
-            </button>
-            {availableSources.map((source) => {
-              const count = distributions.filter(d => (d.metadata?.installSource || "unknown") === source).length;
-              const color = INSTALL_SOURCE_COLORS[source];
-              const name = INSTALL_SOURCE_NAMES[source];
-              const isSelected = sourceFilter === source;
-              return (
-                <button
-                  key={source}
-                  onClick={() => setSourceFilter(source)}
-                  data-testid={`source-filter-${source}`}
-                  className={`p-1.5 text-xs font-medium rounded-md transition-all border ${
-                    isSelected ? "" : "border-transparent text-theme-text-muted hover:text-theme-text-secondary hover:bg-theme-bg-hover"
-                  }`}
-                  style={isSelected ? {
-                    backgroundColor: `${color}20`,
-                    color: color,
-                    borderColor: `${color}50`,
-                  } : undefined}
-                  title={`${name} (${count})`}
-                >
-                  <SourceIcon source={source} className="!w-[15px] !h-[15px]" />
-                </button>
-              );
-            })}
-              </div>
-
             {/* WSL Version Toggle Buttons */}
             <div className="flex items-center gap-1 p-1 bg-theme-bg-tertiary/50 rounded-lg border border-theme-border-primary" data-testid="version-filter-group">
               {hasWsl1 && (
@@ -748,7 +705,7 @@ export function DistroList() {
           </div>
         </div>
 
-      {sourceFilter === "all" && hypervError && (
+      {hypervError && (
         <div className="mb-4 rounded-lg border border-theme-status-error/30 bg-theme-status-error/10 px-4 py-3 text-xs font-mono text-theme-status-error">
           Hyper-V: {hypervError}
         </div>
